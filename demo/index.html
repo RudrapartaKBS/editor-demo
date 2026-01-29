@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MyEditor Demo</title>
+  </head>
+
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="brand">MyEditor</div>
+        <div class="topbar-actions">
+          <button class="btn">Draft</button>
+          <button class="btn btn-primary">Publish</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2 class="title">Article Editor</h2>
+              <p class="sub">JSON output ready for CMS rendering</p>
+            </div>
+
+            <div class="status">
+              <span class="dot"></span>
+              <span id="statusText">Ready</span>
+            </div>
+          </div>
+
+          <div class="toolbarHost" id="toolbar"></div>
+
+          <textarea id="desc" name="description"></textarea>
+          <div id="editor" class="editorHost"></div>
+        </section>
+
+        <aside class="card side">
+          <div class="card-head compact">
+            <h3 class="titleSm">Live JSON</h3>
+            <button class="btn btn-ghost" id="copyJson">Copy</button>
+          </div>
+          <pre id="out" class="code"></pre>
+        </aside>
+      </main>
+    </div>
+
+    <script type="module" src="./demo.ts"></script>
+  </body>
+</html>

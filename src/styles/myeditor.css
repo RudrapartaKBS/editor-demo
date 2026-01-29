@@ -1,0 +1,109 @@
+/* src/styles/myeditor.css */
+
+/* ProseMirror base (keep minimal, stable) */
+.ProseMirror {
+  position: relative;
+  outline: none;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  white-space: break-spaces;
+  caret-color: #111;
+  color: #111;
+}
+
+.ProseMirror pre {
+  white-space: pre-wrap;
+}
+
+.ProseMirror li {
+  position: relative;
+}
+
+/* Editor frame (simple, professional) */
+.myeditor-root {
+  background: transparent;
+}
+
+/* Editable surface = clean white document */
+.myeditor-root .ProseMirror {
+  background: #fff;
+  color: #111;
+  min-height: 420px;
+  padding: 18px 20px;
+  border-radius: 14px;
+
+  /* subtle border */
+  border: 1px solid rgba(0, 0, 0, 0.12);
+
+  /* readable typography */
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+
+  cursor: text;
+}
+
+/* Focus ring */
+.myeditor-root .ProseMirror:focus {
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18);
+}
+
+/* Basic spacing */
+.myeditor-root .ProseMirror p {
+  margin: 0 0 12px;
+}
+
+/* Headings */
+.myeditor-root .ProseMirror h1 {
+  font-size: 28px;
+  line-height: 1.25;
+  margin: 10px 0 14px;
+}
+
+.myeditor-root .ProseMirror h2 {
+  font-size: 22px;
+  line-height: 1.3;
+  margin: 10px 0 12px;
+}
+
+.myeditor-root .ProseMirror h3 {
+  font-size: 18px;
+  line-height: 1.35;
+  margin: 10px 0 10px;
+}
+
+/* Links */
+.myeditor-root .ProseMirror a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* Blockquote */
+.myeditor-root .ProseMirror blockquote {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border-left: 3px solid rgba(0, 0, 0, 0.22);
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 10px;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+/* Lists */
+.myeditor-root .ProseMirror ul,
+.myeditor-root .ProseMirror ol {
+  margin: 0 0 12px;
+  padding-left: 24px;
+}
+
+.myeditor-root .ProseMirror li {
+  margin: 4px 0;
+}
+
+.myeditor-root .ProseMirror ul { list-style: disc; }
+.myeditor-root .ProseMirror ol { list-style: decimal; }
+
+/* Selection (visible on white) */
+.ProseMirror ::selection {
+  background: rgba(99, 102, 241, 0.25);
+}
