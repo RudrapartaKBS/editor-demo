@@ -2,6 +2,7 @@ import type { Tool } from "../../../core/types";
 import { setTextColor } from "../../../commands/marks";
 
 export const textColorTool: Tool = {
+  type: "button",          // ← missing tha
   id: "text_color",
   label: "A",
   title: "Text color (hex)",
