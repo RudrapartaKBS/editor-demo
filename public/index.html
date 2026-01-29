@@ -3,45 +3,79 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MyEditor Test index.html</title>
+    <title>MyEditor Live Test</title>
 
-    <!-- REQUIRED -->
-    <link rel="stylesheet" href="https://editor.explorepedia.org/myeditor.css">
+    <!-- REQUIRED editor base styles -->
+    <link rel="stylesheet" href="https://editor.explorepedia.org/myeditor.css" />
 
-    <!-- OPTIONAL UI -->
-    <link rel="stylesheet" href="https://editor.explorepedia.org/demo.css">
-
-    <style>
-      body { font-family: system-ui, sans-serif; padding: 24px; }
-    </style>
+    <!-- OPTIONAL demo UI styles (must exist on server) -->
+    <link rel="stylesheet" href="https://editor.explorepedia.org/demo/demo.css" />
   </head>
 
   <body>
-    <h2>MyEditor Test index.html</h2>
+    <div class="page">
+      <header class="topbar">
+        <div class="brand">MyEditor</div>
+        <div class="topbar-actions">
+          <button class="btn">Draft</button>
+          <button class="btn btn-primary">Publish</button>
+        </div>
+      </header>
 
-    <div id="toolbar"></div>
-    <div id="editor"></div>
+      <main class="layout">
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2 class="title">Article Editor</h2>
+              <p class="sub">JSON output ready for CMS rendering</p>
+            </div>
 
-    <h3>JSON Output</h3>
-    <pre id="out"></pre>
+            <div class="status">
+              <span class="dot"></span>
+              <span id="statusText">Ready</span>
+            </div>
+          </div>
 
-    <!-- JS -->
+          <div class="toolbarHost" id="toolbar"></div>
+
+          <!-- keep textarea hidden if you want -->
+          <textarea id="desc" name="content" style="display:none"></textarea>
+
+          <div id="editor" class="editorHost"></div>
+        </section>
+
+        <aside class="card side">
+          <div class="card-head compact">
+            <h3 class="titleSm">Live JSON</h3>
+            <button class="btn btn-ghost" id="copyJson">Copy</button>
+          </div>
+          <pre id="out" class="code"></pre>
+        </aside>
+      </main>
+    </div>
+
     <script src="https://editor.explorepedia.org/myeditor.umd.js"></script>
-
     <script>
       if (!window.MyEditor) throw new Error("MyEditor missing");
       if (!window.MyEditor.DEFAULT_TOOLS) throw new Error("DEFAULT_TOOLS missing");
 
       const out = document.getElementById("out");
+      const statusText = document.getElementById("statusText");
 
       MyEditor.createEditor("#editor", {
-        toolbar: {
-          target: "#toolbar",
-          tools: MyEditor.DEFAULT_TOOLS,
-        },
+        textarea: "#desc",
+        outputHTML: true,
+        toolbar: { target: "#toolbar", tools: MyEditor.DEFAULT_TOOLS },
         onChange: ({ json }) => {
           out.textContent = JSON.stringify(json, null, 2);
+          statusText.textContent = "Editing";
         },
+      });
+
+      document.getElementById("copyJson").addEventListener("click", async () => {
+        await navigator.clipboard.writeText(out.textContent || "");
+        statusText.textContent = "Copied JSON";
+        setTimeout(() => (statusText.textContent = "Editing"), 900);
       });
     </script>
   </body>
