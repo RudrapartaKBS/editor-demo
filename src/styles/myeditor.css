@@ -23,34 +23,39 @@
   position: relative;
 }
 
-/* Editor frame (simple, professional) */
+/* Editor frame (professional container) */
 .myeditor-root {
   background: transparent;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e1e5e9;
 }
 
 /* Editable surface = clean white document */
 .myeditor-root .ProseMirror {
   background: #fff;
-  color: #111;
-  min-height: 420px;
-  padding: 18px 20px;
-  border-radius: 14px;
+  color: #2d3748;
+  min-height: 450px;
+  padding: 24px 28px;
+  border-radius: 0 0 12px 12px;
 
-  /* subtle border */
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  /* No border as parent has it */
+  border: none;
 
-  /* readable typography */
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  /* Professional typography */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
 
   cursor: text;
+  position: relative;
 }
 
 /* Focus ring */
 .myeditor-root .ProseMirror:focus {
-  border-color: rgba(99, 102, 241, 0.55);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18);
+  outline: none;
 }
 
 /* Placeholder */
@@ -84,26 +89,45 @@
 
 /* Basic spacing */
 .myeditor-root .ProseMirror p {
-  margin: 0 0 12px;
+  margin: 0 0 1.2em;
+}
+
+.myeditor-root .ProseMirror p:last-child {
+  margin-bottom: 0;
 }
 
 /* Headings */
 .myeditor-root .ProseMirror h1 {
-  font-size: 28px;
-  line-height: 1.25;
-  margin: 10px 0 14px;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 1.5em 0 0.8em;
+  color: #1a202c;
+  letter-spacing: -0.02em;
 }
 
 .myeditor-root .ProseMirror h2 {
-  font-size: 22px;
+  font-size: 26px;
+  font-weight: 600;
   line-height: 1.3;
-  margin: 10px 0 12px;
+  margin: 1.3em 0 0.7em;
+  color: #2d3748;
+  letter-spacing: -0.015em;
 }
 
 .myeditor-root .ProseMirror h3 {
-  font-size: 18px;
-  line-height: 1.35;
-  margin: 10px 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 1.2em 0 0.6em;
+  color: #2d3748;
+  letter-spacing: -0.01em;
+}
+
+.myeditor-root .ProseMirror h1:first-child,
+.myeditor-root .ProseMirror h2:first-child,
+.myeditor-root .ProseMirror h3:first-child {
+  margin-top: 0;
 }
 
 /* Links */
