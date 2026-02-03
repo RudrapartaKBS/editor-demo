@@ -1,3 +1,6 @@
+// Import styles for bundled builds
+import "./styles";
+
 export { createEditor } from "./core/createEditor";
 export { mountToolbar } from "./ui/toolbar/mountToolbar";
 
@@ -17,6 +20,8 @@ export {
   bulletListTool,
   orderedListTool,
   quoteTool,
+  imageTool,
+  codeBlockTool,
 } from "./ui/toolbar/tools";
 
 export type {
@@ -26,6 +31,17 @@ export type {
   ToolbarConfig,
   Tool,
 } from "./core/types";
+
+// Media utilities for custom upload handling
+export {
+  validateFile,
+  uploadToDataUrl,
+  uploadToServer,
+  compressImage,
+  createThumbnail,
+  DEFAULT_UPLOAD_CONFIG,
+  type UploadConfig,
+} from "./core/mediaUtils";
 
 
 

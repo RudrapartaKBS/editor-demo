@@ -10,3 +10,4 @@ export { quoteTool } from "./blockquote";
 export { bulletListTool, orderedListTool, liftListTool } from "./lists";
 export { textColorTool } from "./textColor";
 export { highlightTool } from "./highlight";
+export { embedTool } from "./embed";

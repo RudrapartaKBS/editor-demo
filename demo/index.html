@@ -7,41 +7,114 @@
   </head>
 
   <body>
-    <div class="page">
-      <header class="topbar">
-        <div class="brand">MyEditor</div>
-        <div class="topbar-actions">
-          <button class="btn">Draft</button>
-          <button class="btn btn-primary">Publish</button>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-content">
+          <div class="brand">
+            <h1>MyEditor Pro</h1>
+            <p>Advanced Rich Text Editor</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline">Preview</button>
+            <button class="btn btn-outline">Save Draft</button>
+            <button class="btn btn-primary">Publish</button>
+          </div>
         </div>
       </header>
 
-      <main class="layout">
-        <section class="card">
-          <div class="card-head">
-            <div>
-              <h2 class="title">Article Editor</h2>
-              <p class="sub">JSON output ready for CMS rendering</p>
+      <!-- Main Content -->
+      <main class="app-main">
+        <!-- Sidebar -->
+        <aside class="app-sidebar">
+          <div class="sidebar-section">
+            <h3>Document Info</h3>
+            <div class="info-item">
+              <span class="label">Status:</span>
+              <span class="status" id="statusText">Ready</span>
             </div>
-
-            <div class="status">
-              <span class="dot"></span>
-              <span id="statusText">Ready</span>
+            <div class="info-item">
+              <span class="label">Words:</span>
+              <span id="wordCount">0</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Characters:</span>
+              <span id="charCount">0</span>
             </div>
           </div>
 
-          <div class="toolbarHost" id="toolbar"></div>
+          <div class="sidebar-section">
+            <h3>Actions</h3>
+            <button class="sidebar-btn" id="copyJson">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="m5 15-4-4 4-4"></path>
+              </svg>
+              Copy JSON
+            </button>
+            <button class="sidebar-btn" id="exportHtml">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 1 2 2h12a2 2 0 0 1 2-2V8z"></path>
+              </svg>
+              Export HTML
+            </button>
+          </div>
 
-          <textarea id="desc" name="description"></textarea>
-          <div id="editor" class="editorHost"></div>
+          <div class="sidebar-section">
+            <h3>Settings</h3>
+            <label class="checkbox-label">
+              <input type="checkbox" id="autoSave" checked>
+              <span class="checkmark"></span>
+              Auto Save
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="livePreview">
+              <span class="checkmark"></span>
+              Live Preview
+            </label>
+          </div>
+        </aside>
+
+        <!-- Editor Area -->
+        <section class="editor-container">
+          <!-- Editor Header -->
+          <div class="editor-header">
+            <h2>Create New Article</h2>
+            <div class="editor-meta">
+              <span>Last saved: <span id="lastSaved">Never</span></span>
+            </div>
+          </div>
+
+          <!-- Toolbar Container -->
+          <div class="toolbar-container">
+            <div class="toolbar-wrapper" id="toolbar"></div>
+          </div>
+
+          <!-- Hidden textarea for form submission -->
+          <textarea id="desc" name="description" style="display: none;"></textarea>
+          
+          <!-- Editor Surface -->
+          <div class="editor-surface">
+            <div id="editor" class="editor-content"></div>
+          </div>
+
+          <!-- Footer Info -->
+          <div class="editor-footer">
+            <div class="editor-stats">
+              <span>Ready to edit</span>
+            </div>
+          </div>
         </section>
 
-        <aside class="card side">
-          <div class="card-head compact">
-            <h3 class="titleSm">Live JSON</h3>
-            <button class="btn btn-ghost" id="copyJson">Copy</button>
+        <!-- JSON Output Panel -->
+        <aside class="json-panel">
+          <div class="panel-header">
+            <h3>Live JSON Output</h3>
+            <button class="panel-toggle" id="toggleJson">Hide</button>
           </div>
-          <pre id="out" class="code"></pre>
+          <div class="panel-content">
+            <pre id="out" class="json-output"></pre>
+          </div>
         </aside>
       </main>
     </div>

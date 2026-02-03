@@ -39,3 +39,1068 @@
 .myeditor-select { height: 34px; border-radius: 10px; padding: 0 10px; }
 .myeditor-color { display: flex; align-items: center; gap: 6px; }
 .myeditor-color-btn { width: 18px; height: 18px; border-radius: 6px; border: 1px solid rgba(0,0,0,.15); }
+
+/* Image Upload Dialog */
+.myeditor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.myeditor-image-dialog {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  max-width: 550px;
+  width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.myeditor-image-dialog .dialog-content {
+  padding: 24px;
+}
+
+.myeditor-image-dialog h3 {
+  margin: 0 0 20px;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.myeditor-image-dialog .form-group {
+  margin-bottom: 16px;
+}
+
+.myeditor-image-dialog .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.myeditor-image-dialog .preview-group {
+  grid-column: span 2;
+  text-align: center;
+}
+
+.myeditor-image-dialog .image-preview {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.myeditor-image-dialog label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.myeditor-image-dialog input,
+.myeditor-image-dialog select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+}
+
+.myeditor-image-dialog input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+}
+
+.myeditor-image-dialog input:focus,
+.myeditor-image-dialog select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.myeditor-image-dialog .dialog-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.myeditor-image-dialog .btn-cancel,
+.myeditor-image-dialog .btn-insert {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.myeditor-image-dialog .btn-cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.myeditor-image-dialog .btn-cancel:hover {
+  background: #e5e7eb;
+}
+
+.myeditor-image-dialog .btn-insert {
+  background: #6366f1;
+  color: white;
+}
+
+/* Enhanced Image Dialog */
+.myeditor-image-dialog {
+  background: #fff;
+  border-radius: 12px;
+  padding: 0;
+  width: 600px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  position: relative;
+  margin: auto;
+}
+
+.myeditor-image-dialog .dialog-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.myeditor-image-dialog .dialog-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.myeditor-image-dialog .dialog-body {
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Dialog Tabs */
+.myeditor-image-dialog .dialog-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: #f3f4f6;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.myeditor-image-dialog .tab-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.myeditor-image-dialog .tab-btn.active {
+  background: #fff;
+  color: #3b82f6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.myeditor-image-dialog .tab-content {
+  display: none;
+  margin-bottom: 20px;
+}
+
+.myeditor-image-dialog .tab-content.active {
+  display: block;
+}
+
+/* Upload Area */
+.myeditor-image-dialog .upload-area {
+  margin-bottom: 24px;
+}
+
+.myeditor-image-dialog .upload-dropzone {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  background: #fafbfc;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.myeditor-image-dialog .upload-dropzone:hover,
+.myeditor-image-dialog .upload-dropzone.drag-over {
+  border-color: #6366f1;
+  background: #f0f9ff;
+}
+
+.myeditor-image-dialog .upload-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.myeditor-image-dialog .upload-trigger {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Form Groups */
+.myeditor-image-dialog .form-group {
+  margin-bottom: 16px;
+}
+
+.myeditor-image-dialog .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.myeditor-image-dialog .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.myeditor-image-dialog .form-group input,
+.myeditor-image-dialog .form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.myeditor-image-dialog .form-group input:focus,
+.myeditor-image-dialog .form-group select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.myeditor-image-dialog .checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+}
+
+.myeditor-image-dialog .checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+}
+
+/* Image Settings */
+.myeditor-image-dialog .image-settings {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 24px;
+  margin-top: 24px;
+}
+
+/* Preview */
+.myeditor-image-dialog .image-preview-container {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.myeditor-image-dialog .image-preview {
+  text-align: center;
+}
+
+.myeditor-image-dialog .preview-img {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dialog Actions */
+.myeditor-image-dialog .dialog-actions {
+  padding: 20px 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  background: #f9fafb;
+}
+
+.myeditor-image-dialog .btn-cancel,
+.myeditor-image-dialog .btn-insert {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 14px;
+}
+
+.myeditor-image-dialog .btn-cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.myeditor-image-dialog .btn-cancel:hover {
+  background: #e5e7eb;
+}
+
+.myeditor-image-dialog .btn-insert {
+  background: #3b82f6;
+  color: white;
+}
+
+.myeditor-image-dialog .btn-insert:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.myeditor-image-dialog .btn-insert:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Color Dropdown Styles - CKEditor inspired */
+.myeditor-color-dropdown {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  width: 280px;
+  overflow: hidden;
+}
+
+.color-dropdown-header {
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.color-dropdown-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.color-remove-section {
+  padding: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.color-remove-btn {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.color-remove-btn:hover {
+  background: #f3f4f6;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.remove-icon {
+  font-size: 14px;
+}
+
+.color-presets-section {
+  padding: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.color-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+}
+
+.color-presets-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.color-row {
+  display: flex;
+  gap: 2px;
+}
+
+.color-preset {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.color-preset:hover {
+  transform: scale(1.1);
+  border-color: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.color-preset:active {
+  transform: scale(0.95);
+}
+
+.color-custom-section {
+  padding: 12px;
+}
+
+.custom-color-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.custom-color-preview {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: #000;
+  flex-shrink: 0;
+}
+
+.custom-color-input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'Monaco', 'Consolas', monospace;
+  text-transform: uppercase;
+}
+
+.custom-color-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.custom-color-picker {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  overflow: hidden;
+}
+
+.custom-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+}
+
+.custom-color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+/* Enhanced Image Dialog Styles */
+/* Enhanced Image Dialog Styles */
+.myeditor-enhanced-dialog {
+  width: 600px;
+  max-width: 90vw;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.myeditor-enhanced-dialog .dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  flex-shrink: 0;
+}
+
+.myeditor-enhanced-dialog .dialog-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.myeditor-enhanced-dialog .dialog-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.myeditor-enhanced-dialog .dialog-close:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.myeditor-enhanced-dialog .dialog-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.myeditor-enhanced-dialog .dialog-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  background: #f3f4f6;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.myeditor-enhanced-dialog .tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6b7280;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.myeditor-enhanced-dialog .tab-btn:hover {
+  color: #374151;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.myeditor-enhanced-dialog .tab-btn.active {
+  color: #3b82f6;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.myeditor-enhanced-dialog .tab-content {
+  display: none;
+}
+
+.myeditor-enhanced-dialog .tab-content.active {
+  display: block;
+}
+
+.myeditor-enhanced-dialog .upload-area {
+  margin-bottom: 20px;
+}
+
+.myeditor-enhanced-dialog .upload-dropzone {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  background: #f9fafb;
+  transition: all 0.15s ease;
+}
+
+.myeditor-enhanced-dialog .upload-dropzone:hover,
+.myeditor-enhanced-dialog .upload-dropzone.drag-over {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.myeditor-enhanced-dialog .upload-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.myeditor-enhanced-dialog .upload-trigger {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.myeditor-enhanced-dialog .upload-trigger:hover {
+  color: #2563eb;
+}
+
+.myeditor-enhanced-dialog .form-group {
+  margin-bottom: 16px;
+}
+
+.myeditor-enhanced-dialog label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.myeditor-enhanced-dialog input,
+.myeditor-enhanced-dialog select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.myeditor-enhanced-dialog input:focus,
+.myeditor-enhanced-dialog select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.myeditor-enhanced-dialog .form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.myeditor-enhanced-dialog .form-row .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.myeditor-enhanced-dialog .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.myeditor-enhanced-dialog .checkbox-label input[type="checkbox"] {
+  margin: 0;
+  width: auto;
+}
+
+.myeditor-enhanced-dialog .image-settings {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.myeditor-enhanced-dialog .image-preview-container {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.myeditor-enhanced-dialog .image-preview {
+  border-radius: 6px;
+  overflow: hidden;
+  max-width: 200px;
+  margin-top: 8px;
+}
+
+.myeditor-enhanced-dialog .preview-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.myeditor-enhanced-dialog .dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  flex-shrink: 0;
+}
+
+.myeditor-enhanced-dialog .btn-cancel,
+.myeditor-enhanced-dialog .btn-insert {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.myeditor-enhanced-dialog .btn-cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.myeditor-enhanced-dialog .btn-cancel:hover {
+  background: #e5e7eb;
+}
+
+.myeditor-enhanced-dialog .btn-insert {
+  background: #3b82f6;
+  color: white;
+}
+
+.myeditor-enhanced-dialog .btn-insert:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.myeditor-enhanced-dialog .btn-insert:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Embed Dialog Styles */
+.myeditor-embed-dialog .platform-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 16px 0;
+}
+
+.myeditor-embed-dialog .platform-tag {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.myeditor-embed-dialog .platform-tag.youtube {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.myeditor-embed-dialog .platform-tag.vimeo {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.myeditor-embed-dialog .platform-tag.twitter {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.myeditor-embed-dialog .platform-tag.instagram {
+  background: #fdf2f8;
+  color: #c026d3;
+}
+
+.myeditor-embed-dialog .platform-tag.iframe {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.myeditor-embed-dialog .help-text {
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.myeditor-embed-dialog .embed-detection {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.myeditor-embed-dialog .detected-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #059669;
+  font-size: 14px;
+}
+
+.myeditor-embed-dialog .detected-icon {
+  font-size: 16px;
+}
+
+.myeditor-embed-dialog .embed-settings {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.myeditor-embed-dialog .embed-preview-container {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.myeditor-embed-dialog .embed-preview {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.myeditor-embed-dialog .preview-frame {
+  width: 100%;
+  height: 200px;
+  border: none;
+}
+
+/* Embed Node Styles */
+.myeditor-root .ProseMirror .pm-embed {
+  margin: 1rem 0;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.myeditor-root .ProseMirror .pm-embed--center {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.myeditor-root .ProseMirror .pm-embed--left {
+  float: left;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+}
+
+.myeditor-root .ProseMirror .pm-embed--right {
+  float: right;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+}
+
+.myeditor-root .ProseMirror .pm-embed iframe {
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+  height: auto;
+}
+
+.myeditor-root .ProseMirror .pm-embed--youtube {
+  background: #000;
+}
+
+.myeditor-root .ProseMirror .pm-embed--vimeo {
+  background: #1ab7ea;
+}
+
+.myeditor-root .ProseMirror .pm-embed--twitter {
+  background: #1da1f2;
+}
+
+.myeditor-root .ProseMirror .pm-embed--instagram {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+/* Responsive embed */
+@media (max-width: 768px) {
+  .myeditor-root .ProseMirror .pm-embed {
+    max-width: 100%;
+  }
+  
+  .myeditor-root .ProseMirror .pm-embed--left,
+  .myeditor-root .ProseMirror .pm-embed--right {
+    float: none;
+    margin: 1rem 0;
+  }
+}
+
+.image-preview img {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 4px;
+}
+/* Link Dialog Styles */
+.myeditor-link-dialog .btn-remove {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.myeditor-link-dialog .btn-remove:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+/* Font Size Dropdown */
+.font-size-dropdown {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  min-width: 200px;
+}
+
+.font-size-dropdown .dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.font-size-dropdown .current-size {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.font-size-dropdown .size-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.font-size-dropdown .size-btn {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.font-size-dropdown .size-btn:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.font-size-dropdown .size-slider {
+  flex: 1;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.font-size-dropdown .size-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+}
+
+.font-size-dropdown .size-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: none;
+}
+
+.font-size-dropdown .size-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.font-size-dropdown .preset-btn {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 6px 8px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.font-size-dropdown .preset-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.font-size-dropdown .preset-btn.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* Link styles in editor */
+.myeditor-root .ProseMirror a {
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.myeditor-root .ProseMirror a:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}

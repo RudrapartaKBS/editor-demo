@@ -15,11 +15,11 @@ export type ToolbarInstance = {
 
 export function mountToolbar({ target, view, tools }: Args): ToolbarInstance {
   const host = resolveEl<HTMLElement>(target);
-  host.innerHTML = "";
-
+  
+  // Don't clear existing content - just add toolbar to the top
   const bar = document.createElement("div");
   bar.className = "myeditor-toolbar";
-  host.appendChild(bar);
+  host.insertBefore(bar, host.firstChild);
 
   const buttons = new Map<string, HTMLButtonElement>();
   const dropdowns = new Map<string, HTMLSelectElement>();
@@ -34,7 +34,7 @@ export function mountToolbar({ target, view, tools }: Args): ToolbarInstance {
 
       btn.addEventListener("click", () => {
         view.focus();
-        tool.run(view);
+        tool.run(view, btn);
         refresh();
       });
 

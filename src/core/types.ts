@@ -12,7 +12,7 @@ export type Tool =
       title?: string;
       isActive?: (view: EditorView) => boolean;
       isEnabled?: (view: EditorView) => boolean;
-      run: (view: EditorView) => boolean | void;
+      run: (view: EditorView, button?: HTMLElement) => boolean | void;
     }
   | {
       type: "dropdown";
@@ -56,13 +56,19 @@ export type EditorOutput = {
  */
 export type EditorAPI = {
   view: EditorView;
-  // Future-proof public API (Phase 2)
-  exec?: (command: string, attrs?: any) => boolean;
-  canExec?: (command: string, attrs?: any) => boolean;
+  // Core API methods
   getJSON: () => any;
   getHTML: () => string;
   getValue: () => EditorOutput;
+  getContent: () => any;
+  setContent: (content: any) => void;
+  getText: () => string;
+  focus: () => void;
+  hasChanges: () => boolean;
   destroy: () => void;
+  // Future-proof public API (Phase 2)
+  exec?: (command: string, attrs?: any) => boolean;
+  canExec?: (command: string, attrs?: any) => boolean;
 };
 
 /**
@@ -72,6 +78,7 @@ export type EditorConfig = {
   textarea?: string | HTMLTextAreaElement;   // bind: hide textarea and keep values synced
   initialJSON?: any;
   initialHTML?: string;
+  placeholder?: string;                      // placeholder text for empty editor
   onChange?: (payload: EditorOutput) => void;
 
   // Performance

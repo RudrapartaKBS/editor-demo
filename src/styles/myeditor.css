@@ -11,6 +11,10 @@
   color: #111;
 }
 
+.ProseMirror[contenteditable="true"] {
+  outline: none;
+}
+
 .ProseMirror pre {
   white-space: pre-wrap;
 }
@@ -47,6 +51,35 @@
 .myeditor-root .ProseMirror:focus {
   border-color: rgba(99, 102, 241, 0.55);
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18);
+}
+
+/* Placeholder */
+.myeditor-root .ProseMirror p.is-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+.myeditor-root .ProseMirror:empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Make sure editor is always clickable and editable */
+.myeditor-root .ProseMirror {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+.myeditor-root .ProseMirror[contenteditable="true"] {
+  -webkit-user-modify: read-write-plaintext-only;
 }
 
 /* Basic spacing */
@@ -100,10 +133,486 @@
   margin: 4px 0;
 }
 
+/* Enhanced Image Block Styles */
+.myeditor-root .ProseMirror .pm-figure {
+  position: relative;
+  display: inline-block;
+  margin: 1rem 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  max-width: 100%;
+}
+
+.myeditor-root .ProseMirror .pm-figure:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.myeditor-root .ProseMirror .pm-figure.ProseMirror-selectednode {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.myeditor-root .ProseMirror .pm-figure--none {
+  display: block;
+  margin: 1rem 0;
+  clear: both;
+}
+
+.myeditor-root .ProseMirror .pm-figure--left {
+  float: left;
+  clear: left;
+  margin: 0 1rem 1rem 0;
+}
+
+.myeditor-root .ProseMirror .pm-figure--right {
+  float: right;
+  clear: right;
+  margin: 0 0 1rem 1rem;
+}
+
+.myeditor-root .ProseMirror .pm-figure--center {
+  display: block;
+  margin: 1rem auto;
+  clear: both;
+}
+
+.myeditor-root .ProseMirror .pm-figure img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+  max-width: 100%;
+  transition: filter 0.2s ease;
+}
+
+.myeditor-root .ProseMirror .pm-figure:hover img {
+  filter: brightness(0.95);
+}
+
+.myeditor-root .ProseMirror .pm-caption {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+  background: #f9fafb;
+  border-radius: 0 0 6px 6px;
+  border: none;
+  outline: none;
+  width: 100%;
+  min-height: 32px;
+  display: block;
+  cursor: text;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.myeditor-root .ProseMirror .pm-caption--empty {
+  font-style: italic;
+  color: #9ca3af;
+}
+
+.myeditor-root .ProseMirror .pm-caption:focus,
+.myeditor-root .ProseMirror .pm-caption:hover {
+  background: #fff;
+  color: #374151;
+  box-shadow: inset 0 0 0 1px #6366f1;
+}
+
+/* Resize Handle */
+.myeditor-root .ProseMirror .pm-resize-handle {
+  position: absolute;
+  bottom: 35px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: col-resize;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  user-select: none;
+  backdrop-filter: blur(4px);
+}
+
+.myeditor-root .ProseMirror .pm-figure:hover .pm-resize-handle,
+.myeditor-root .ProseMirror .pm-figure.ProseMirror-selectednode .pm-resize-handle {
+  opacity: 1;
+}
+
+.myeditor-root .ProseMirror .pm-resize-handle:hover {
+  background: rgba(59, 130, 246, 1);
+  transform: scale(1.1);
+}
+
+/* Image Controls */
+.myeditor-root .ProseMirror .pm-image-controls {
+  position: absolute;
+  top: -50px;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: none;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.myeditor-root .ProseMirror .pm-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.myeditor-root .ProseMirror .pm-controls-row label {
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.myeditor-root .ProseMirror .pm-align-select {
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #fff;
+  min-width: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.myeditor-root .ProseMirror .pm-align-select:hover {
+  border-color: #6366f1;
+  background: #f8f9ff;
+}
+
+.myeditor-root .ProseMirror .pm-align-select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.myeditor-root .ProseMirror .pm-zoom-checkbox {
+  margin: 0;
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+.myeditor-root .ProseMirror .pm-zoom-checkbox:hover {
+  accent-color: #6366f1;
+}
+
+.myeditor-root .ProseMirror .pm-delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: auto;
+  transition: background-color 0.2s ease;
+}
+
+.myeditor-root .ProseMirror .pm-delete-btn:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+/* Legacy Image styles for backward compatibility */
+.myeditor-root .ProseMirror img.editor-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Image alignment */
+.myeditor-root .ProseMirror img.align-center {
+  display: block;
+  margin: 16px auto;
+}
+
+.myeditor-root .ProseMirror img.align-left {
+  display: block;
+  margin: 16px auto 16px 0;
+}
+
+.myeditor-root .ProseMirror img.align-right {
+  display: block;
+  margin: 16px 0 16px auto;
+}
+
+/* Float positioning for text wrapping */
+.myeditor-root .ProseMirror img.align-float-left {
+  float: left;
+  margin: 0 16px 16px 0;
+  max-width: 50%;
+}
+
+.myeditor-root .ProseMirror img.align-float-right {
+  float: right;
+  margin: 0 0 16px 16px;
+  max-width: 50%;
+}
+
+/* Zoomable images */
+.myeditor-root .ProseMirror img.zoomable {
+  cursor: zoom-in;
+}
+
+.myeditor-root .ProseMirror img.zoomable:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Zoom modal */
+.image-zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  cursor: zoom-out;
+}
+
+.image-zoom-overlay img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.myeditor-root .ProseMirror figure {
+  margin: 16px 0;
+  padding: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+.myeditor-root .ProseMirror figure.figure-left {
+  float: left;
+  max-width: 300px;
+  margin: 0 16px 16px 0;
+}
+
+.myeditor-root .ProseMirror figure.figure-right {
+  float: right;
+  max-width: 300px;
+  margin: 0 0 16px 16px;
+}
+
+.myeditor-root .ProseMirror figure.figure-center {
+  text-align: center;
+  clear: both;
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+.myeditor-root .ProseMirror figure.figure-float-left {
+  float: left;
+  max-width: 40%;
+  margin: 0 16px 16px 0;
+}
+
+.myeditor-root .ProseMirror figure.figure-float-right {
+  float: right;
+  max-width: 40%;
+  margin: 0 0 16px 16px;
+}
+
+.myeditor-root .ProseMirror figcaption {
+  margin-top: 8px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.7);
+  font-style: italic;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Code Blocks */
+.myeditor-root .ProseMirror pre {
+  background: #f8f9fa;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  overflow-x: auto;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.myeditor-root .ProseMirror pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
 .myeditor-root .ProseMirror ul { list-style: disc; }
 .myeditor-root .ProseMirror ol { list-style: decimal; }
 
 /* Selection (visible on white) */
 .ProseMirror ::selection {
   background: rgba(99, 102, 241, 0.25);
+}
+
+/* Embed NodeView Controls */
+.myeditor-root .ProseMirror .pm-embed-container {
+  position: relative;
+  margin: 1rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.myeditor-root .ProseMirror .pm-embed-container.ProseMirror-selectednode {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+.myeditor-root .ProseMirror .pm-embed-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.myeditor-root .ProseMirror .pm-embed-controls .pm-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.myeditor-root .ProseMirror .pm-embed-controls label {
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.myeditor-root .ProseMirror .pm-embed-controls .pm-size-select,
+.myeditor-root .ProseMirror .pm-embed-controls .pm-align-select {
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.myeditor-root .ProseMirror .pm-embed-controls .pm-size-select:hover,
+.myeditor-root .ProseMirror .pm-embed-controls .pm-align-select:hover {
+  border-color: #6366f1;
+  background: #f8f9ff;
+}
+
+.myeditor-root .ProseMirror .pm-embed-controls .pm-size-select:focus,
+.myeditor-root .ProseMirror .pm-embed-controls .pm-align-select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.myeditor-root .ProseMirror .pm-embed-controls .pm-edit-btn,
+.myeditor-root .ProseMirror .pm-embed-controls .pm-delete-btn {
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.myeditor-root .ProseMirror .pm-embed-controls .pm-edit-btn:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.myeditor-root .ProseMirror .pm-embed-controls .pm-delete-btn:hover {
+  background: #ef4444;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Embed alignments */
+.myeditor-root .ProseMirror .pm-embed-container.pm-embed--left {
+  float: left;
+  margin: 0 1rem 1rem 0;
+  clear: left;
+}
+
+.myeditor-root .ProseMirror .pm-embed-container.pm-embed--right {
+  float: right;
+  margin: 0 0 1rem 1rem;
+  clear: right;
+}
+
+.myeditor-root .ProseMirror .pm-embed-container.pm-embed--center {
+  display: block;
+  margin: 1rem auto;
+  text-align: center;
+}
+
+/* Responsive embeds */
+@media (max-width: 768px) {
+  .myeditor-root .ProseMirror .pm-embed-container {
+    max-width: 100%;
+  }
+  
+  .myeditor-root .ProseMirror .pm-embed-container.pm-embed--left,
+  .myeditor-root .ProseMirror .pm-embed-container.pm-embed--right {
+    float: none;
+    margin: 1rem 0;
+  }
+  
+  .myeditor-root .ProseMirror .pm-embed-controls {
+    position: static;
+    margin-top: 8px;
+    background: rgba(255, 255, 255, 0.9);
+  }
+  
+  .myeditor-root .ProseMirror .pm-embed-controls .pm-controls-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyEditor CDN Example</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+        
+        h1 {
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .editor-wrapper {
+            margin: 25px 0;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 400px;
+        }
+        
+        /* Make sure editor area is properly styled */
+        .myeditor-root {
+            min-height: 350px;
+        }
+        
+        .myeditor-root .ProseMirror {
+            outline: none;
+            min-height: 350px;
+            padding: 20px;
+            cursor: text;
+        }
+        
+        .myeditor-root .ProseMirror:focus {
+            outline: none;
+            border: none;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 12px;
+        }
+        
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #2563eb;
+        }
+        
+        .usage-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .output {
+            margin-top: 20px;
+            padding: 20px;
+            background: #1f2937;
+            color: #f3f4f6;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .success {
+            background: #10b981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+    </style>
+    
+    <!-- MyEditor CDN Files -->
+    <link rel="stylesheet" href="./dist/myeditor.css">
+    <script src="./dist/myeditor.cdn.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MyEditor CDN Example</h1>
+        <p class="subtitle">यह example दिखाता है कि आप अपने MyEditor को CDN की तरह कैसे use कर सकते हैं।</p>
+        
+        <div id="status" class="success" style="display: none;">
+            ✅ MyEditor successfully initialized!
+        </div>
+        
+        <!-- Editor Container -->
+        <div class="editor-wrapper">
+            <div id="myeditor-container"></div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="getContent()">📄 Get Content</button>
+            <button onclick="setContent()">📝 Set Sample Content</button>
+            <button onclick="clearEditor()">🗑️ Clear Editor</button>
+            <button onclick="toggleOutput()">👁️ Toggle Output</button>
+            <button onclick="showJSON()">🔧 Show JSON Structure</button>
+            <button onclick="toggleRealTimeJSON()">⚡ Real-time JSON</button>
+        </div>
+        
+        <div class="usage-info">
+            <strong>💡 CDN Usage:</strong><br>
+            &lt;link rel="stylesheet" href="https://yoursite.com/dist/myeditor.css"&gt;<br>
+            &lt;script src="https://yoursite.com/dist/myeditor.cdn.js"&gt;&lt;/script&gt;<br><br>
+            <strong>🔧 Initialize:</strong><br>
+            const editor = MyEditor.createEditor(container);<br>
+            MyEditor.mountToolbar(editor.view, { tools: MyEditor.DEFAULT_TOOLS });
+        </div>
+        
+        <div id="output" class="output"></div>
+        
+        <!-- JSON Viewer -->
+        <div id="json-viewer" class="output" style="background: #0f172a; border: 2px solid #1e293b;">
+            <div style="background: #1e293b; padding: 10px; color: #f1f5f9; font-weight: bold; border-bottom: 1px solid #334155;">
+                📋 JSON Document Structure
+            </div>
+            <pre id="json-content" style="margin: 0; padding: 20px; color: #e2e8f0;">Click "Show JSON Structure" to see the document JSON</pre>
+        </div>
+    </div>
+
+    <script>
+        // Global editor instance
+        window.editorInstance = null;
+        window.realTimeJSONEnabled = false;
+        
+        // Wait for both DOM and MyEditor to be ready
+        function initializeEditor() {
+            console.log('🚀 Initializing MyEditor...');
+            
+            // Check if MyEditor is available
+            if (typeof window.MyEditor === 'undefined') {
+                console.error('❌ MyEditor not found! Check if the script loaded correctly.');
+                const output = document.getElementById('output');
+                if (output) {
+                    output.style.display = 'block';
+                    output.textContent = '❌ MyEditor script not loaded. Check the console for errors.';
+                }
+                return;
+            }
+            
+            // Check if container exists
+            const container = document.getElementById('myeditor-container');
+            if (!container) {
+                console.error('❌ Container element not found!');
+                return;
+            }
+            
+            try {
+                // Create editor instance
+                window.editorInstance = window.MyEditor.createEditor(container, {
+                    placeholder: "✨ Click here and start typing... (Try the toolbar buttons!)"
+                    // Start with empty document for testing
+                });
+                
+                if (!window.editorInstance) {
+                    throw new Error('Failed to create editor instance');
+                }
+                
+                // Mount toolbar with correct parameter name
+                window.MyEditor.mountToolbar({
+                    target: container,
+                    view: window.editorInstance.view,
+                    tools: window.MyEditor.DEFAULT_TOOLS
+                });
+                
+                // Setup real-time JSON updates
+                setupRealTimeJSON();
+                
+                // Focus the editor to make it immediately interactive
+                setTimeout(() => {
+                    if (window.editorInstance) {
+                        window.editorInstance.focus();
+                        
+                        // Wait a bit more for ProseMirror DOM to be ready
+                        setTimeout(() => {
+                            const editorElement = container.querySelector('.ProseMirror');
+                            if (editorElement) {
+                                console.log('✅ Found ProseMirror element:', editorElement);
+                                console.log('✅ ContentEditable:', editorElement.contentEditable);
+                                console.log('✅ TabIndex:', editorElement.tabIndex);
+                                
+                                editorElement.addEventListener('click', () => {
+                                    console.log('🖱️ Editor clicked, focusing...');
+                                    window.editorInstance.focus();
+                                });
+                                
+                                editorElement.addEventListener('keydown', (e) => {
+                                    console.log('⌨️ Keydown:', e.key);
+                                });
+                            } else {
+                                console.error('❌ ProseMirror element not found!');
+                                console.log('Available elements:', container.innerHTML);
+                            }
+                        }, 100);
+                    }
+                }, 50);
+                
+                // Show success message
+                const statusEl = document.getElementById('status');
+                if (statusEl) {
+                    statusEl.style.display = 'block';
+                }
+                console.log('✅ MyEditor initialized successfully!');
+                
+            } catch (error) {
+                console.error('❌ Error initializing MyEditor:', error);
+                const output = document.getElementById('output');
+                if (output) {
+                    output.style.display = 'block';
+                    output.textContent = `❌ Initialization Error: ${error.message}`;
+                }
+            }
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', initializeEditor);
+        
+        // Function to get editor content
+        function getContent() {
+            if (!window.editorInstance) {
+                alert('❌ Editor not initialized');
+                return;
+            }
+            
+            try {
+                const content = window.editorInstance.getContent();
+                const output = document.getElementById('output');
+                output.style.display = 'block';
+                output.textContent = '📄 Current Editor Content:\n\n' + JSON.stringify(content, null, 2);
+            } catch (error) {
+                console.error('Error getting content:', error);
+                alert('❌ Error getting content: ' + error.message);
+            }
+        }
+        
+        // Function to set sample content
+        function setContent() {
+            if (!window.editorInstance) {
+                alert('❌ Editor not initialized');
+                return;
+            }
+            
+            try {
+                const sampleContent = {
+                    schemaVersion: 1,
+                    doc: {
+                        type: "doc",
+                        content: [
+                            {
+                                type: "heading",
+                                attrs: { level: 1 },
+                                content: [{ type: "text", text: "🎯 Sample Content Loaded!" }]
+                            },
+                            {
+                                type: "paragraph",
+                                content: [
+                                    { type: "text", text: "This content was set " },
+                                    { type: "text", marks: [{ type: "strong" }], text: "programmatically" },
+                                    { type: "text", text: " via the CDN API! " },
+                                    { type: "text", marks: [{ type: "em" }], text: "Pretty cool, right? 😎" }
+                                ]
+                            },
+                            {
+                                type: "paragraph",
+                                content: [
+                                    { type: "text", text: "Current time: " },
+                                    { type: "text", marks: [{ type: "strong" }], text: new Date().toLocaleString() }
+                                ]
+                            }
+                        ]
+                    }
+                };
+                
+                window.editorInstance.setContent(sampleContent);
+                
+                const output = document.getElementById('output');
+                output.style.display = 'block';
+                output.textContent = '✅ Sample content loaded successfully!\n\nContent was set programmatically using MyEditor CDN API.';
+                
+            } catch (error) {
+                console.error('Error setting content:', error);
+                alert('❌ Error setting content: ' + error.message);
+            }
+        }
+        
+        // Function to clear editor
+        function clearEditor() {
+            if (!window.editorInstance) {
+                alert('❌ Editor not initialized');
+                return;
+            }
+            
+            try {
+                const emptyContent = {
+                    schemaVersion: 1,
+                    doc: {
+                        type: "doc",
+                        content: []
+                    }
+                };
+                
+                window.editorInstance.setContent(emptyContent);
+                
+                const output = document.getElementById('output');
+                output.style.display = 'block';
+                output.textContent = '🗑️ Editor cleared successfully!';
+                
+            } catch (error) {
+                console.error('Error clearing editor:', error);
+                alert('❌ Error clearing editor: ' + error.message);
+            }
+        }
+        
+        // Function to toggle output panel
+        function toggleOutput() {
+            const output = document.getElementById('output');
+            if (output.style.display === 'none' || output.style.display === '') {
+                output.style.display = 'block';
+                if (!output.textContent.trim()) {
+                    output.textContent = '👋 Output panel opened! Use the buttons above to see results here.';
+                }
+            } else {
+                output.style.display = 'none';
+            }
+        }
+        
+        // Function to show current JSON structure
+        function showJSON() {
+            if (!window.editorInstance) {
+                alert('❌ Editor not initialized');
+                return;
+            }
+            
+            try {
+                const content = window.editorInstance.getContent();
+                const jsonViewer = document.getElementById('json-viewer');
+                const jsonContent = document.getElementById('json-content');
+                
+                jsonViewer.style.display = 'block';
+                jsonContent.textContent = JSON.stringify(content, null, 2);
+                
+                // Syntax highlighting for JSON
+                highlightJSON(jsonContent);
+                
+            } catch (error) {
+                console.error('Error getting JSON:', error);
+                alert('❌ Error getting JSON: ' + error.message);
+            }
+        }
+        
+        // Function to toggle real-time JSON updates
+        function toggleRealTimeJSON() {
+            window.realTimeJSONEnabled = !window.realTimeJSONEnabled;
+            
+            const button = event.target;
+            if (window.realTimeJSONEnabled) {
+                button.textContent = '⏹️ Stop Real-time';
+                button.style.background = '#ef4444';
+                showJSON();
+            } else {
+                button.textContent = '⚡ Real-time JSON';
+                button.style.background = '#3b82f6';
+                const jsonViewer = document.getElementById('json-viewer');
+                jsonViewer.style.display = 'none';
+            }
+        }
+        
+        // Setup real-time JSON updates
+        function setupRealTimeJSON() {
+            if (!window.editorInstance || !window.editorInstance.view) return;
+            
+            // Listen to document changes
+            window.editorInstance.view.dom.addEventListener('input', () => {
+                if (window.realTimeJSONEnabled) {
+                    setTimeout(() => {
+                        try {
+                            const content = window.editorInstance.getContent();
+                            const jsonContent = document.getElementById('json-content');
+                            if (jsonContent && document.getElementById('json-viewer').style.display !== 'none') {
+                                jsonContent.textContent = JSON.stringify(content, null, 2);
+                                highlightJSON(jsonContent);
+                            }
+                        } catch (error) {
+                            console.log('JSON update error:', error);
+                        }
+                    }, 100);
+                }
+            });
+        }
+        
+        // Simple JSON syntax highlighting
+        function highlightJSON(element) {
+            let html = element.textContent;
+            
+            // Color different JSON elements
+            html = html.replace(/"([^"]+)":/g, '<span style="color: #60a5fa;">"$1"</span>:');  // Keys
+            html = html.replace(/: "([^"]+)"/g, ': <span style="color: #34d399;">"$1"</span>');  // String values
+            html = html.replace(/: (\d+)/g, ': <span style="color: #fbbf24;">$1</span>');  // Numbers
+            html = html.replace(/: (true|false|null)/g, ': <span style="color: #f87171;">$1</span>');  // Booleans/null
+            html = html.replace(/(\[|\]|\{|\})/g, '<span style="color: #a78bfa;">$1</span>');  // Brackets
+            
+            element.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
