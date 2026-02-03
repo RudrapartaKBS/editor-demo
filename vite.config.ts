@@ -1,5 +1,7 @@
 
 import { defineConfig } from "vite";
+import { copyFileSync, existsSync } from "fs";
+import { resolve } from "path";
 
 export default defineConfig({
   build: {
@@ -22,6 +24,30 @@ export default defineConfig({
       }
     },
   },
+  plugins: [
+    {
+      name: 'copy-examples',
+      writeBundle() {
+        // Copy CDN example to dist folder
+        const srcPath = resolve(__dirname, 'cdn-example.html');
+        const destPath = resolve(__dirname, 'dist/cdn-example.html');
+        
+        if (existsSync(srcPath)) {
+          copyFileSync(srcPath, destPath);
+          console.log('✅ Copied cdn-example.html to dist/');
+        }
+        
+        // Copy main demo index.html to dist folder as well
+        const demoSrcPath = resolve(__dirname, 'demo/index.html');
+        const demoDestPath = resolve(__dirname, 'dist/index.html');
+        
+        if (existsSync(demoSrcPath)) {
+          copyFileSync(demoSrcPath, demoDestPath);
+          console.log('✅ Copied demo/index.html to dist/index.html');
+        }
+      }
+    }
+  ]
 });
 
 // this is live test 
