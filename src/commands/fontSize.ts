@@ -1,6 +1,6 @@
 import { EditorState, Transaction } from "prosemirror-state";
 
-export function increaseFontSize() {
+export function increaseFontSize() { 
   return (state: EditorState, dispatch?: (tr: Transaction) => void) => {
     const { schema, selection } = state;
     const fontSizeMark = schema.marks.fontSize;

@@ -442,7 +442,7 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-
+ 
 /* Compact layout for small images */
 .myeditor-root .ProseMirror .pm-figure[style*="max-width: 100px"] .pm-controls-row,
 .myeditor-root .ProseMirror .pm-figure[style*="max-width: 150px"] .pm-controls-row,

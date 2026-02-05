@@ -3,7 +3,7 @@ import { EditorView } from "prosemirror-view";
 
 export function toggleLink(href: string, title?: string, target?: string) {
   return (state: EditorState, dispatch?: (tr: Transaction) => void) => {
-    const { schema, selection } = state;
+    const { schema, selection } = state; 
     const linkMark = schema.marks.link;
 
     if (!linkMark) return false;
