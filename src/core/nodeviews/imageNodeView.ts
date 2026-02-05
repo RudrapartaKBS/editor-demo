@@ -160,8 +160,8 @@ export class ImageNodeView implements NodeView {
             <input type="checkbox" class="pm-zoom-checkbox" ${zoomable ? 'checked' : ''}> 
             Zoom
           </label>
-          <button class="pm-edit-btn" title="Edit image properties">✏️</button>
-          <button class="pm-delete-btn" title="Delete image">🗑️</button>
+          <button type="button" class="pm-edit-btn" title="Edit image properties">✏️</button>
+          <button type="button" class="pm-delete-btn" title="Delete image">🗑️</button>
         </div>
       `;
     } else {
@@ -179,8 +179,8 @@ export class ImageNodeView implements NodeView {
             <input type="checkbox" class="pm-zoom-checkbox" ${zoomable ? 'checked' : ''}> 
             Zoomable
           </label>
-          <button class="pm-edit-btn" title="Edit image properties">✏️</button>
-          <button class="pm-delete-btn" title="Delete image">🗑️</button>
+          <button type="button" class="pm-edit-btn" title="Edit image properties">✏️</button>
+          <button type="button" class="pm-delete-btn" title="Delete image">🗑️</button>
         </div>
       `;
     }
