@@ -40,6 +40,9 @@ export class EmbedNodeView implements NodeView {
     this.iframe.style.width = "100%";
     this.iframe.style.height = "auto";
     this.iframe.style.aspectRatio = `${node.attrs.width || 560} / ${node.attrs.height || 315}`;
+    
+    // Set container max-width to control actual size
+    this.dom.style.maxWidth = `${node.attrs.width || 560}px`;
 
     // Create controls
     this.controls = document.createElement("div");
@@ -308,8 +311,10 @@ export class EmbedNodeView implements NodeView {
 
   private updateAlignment() {
     const align = this.node.attrs.align || 'center';
+    const width = this.node.attrs.width || 560;
     
     this.dom.className = `pm-embed-container pm-embed--${this.node.attrs.type} pm-embed--${align}`;
+    this.dom.style.maxWidth = `${width}px`;
     
     if (align === "center") {
       this.dom.style.textAlign = "center";
@@ -342,6 +347,9 @@ export class EmbedNodeView implements NodeView {
     this.iframe.height = String(height || 315);
     this.iframe.title = title || "Embedded content";
     this.iframe.style.aspectRatio = `${width || 560} / ${height || 315}`;
+    
+    // Update container max-width for size control
+    this.dom.style.maxWidth = `${width || 560}px`;
 
     // Update alignment
     this.updateAlignment();

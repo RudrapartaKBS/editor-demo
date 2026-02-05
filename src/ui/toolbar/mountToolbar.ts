@@ -1,11 +1,14 @@
 import type { EditorView } from "prosemirror-view";
 import type { Tool } from "../../core/types";
 import { resolveEl } from "../../core/utils";
+import { TOOLBAR_SECTIONS, TOOLBAR_ROWS } from "./tools";
 
 type Args = {
   target: string | HTMLElement;
   view: EditorView;
-  tools: Tool[];
+  tools?: Tool[];
+  useSections?: boolean;
+  useRows?: boolean;
 };
 
 export type ToolbarInstance = {
@@ -13,24 +16,102 @@ export type ToolbarInstance = {
   destroy: () => void;
 };
 
-export function mountToolbar({ target, view, tools }: Args): ToolbarInstance {
+export function mountToolbar({ target, view, tools, useSections = false, useRows = false }: Args): ToolbarInstance {
   const host = resolveEl<HTMLElement>(target);
   
   // Don't clear existing content - just add toolbar to the top
   const bar = document.createElement("div");
-  bar.className = "myeditor-toolbar";
+  bar.className = useRows ? "myeditor-toolbar myeditor-toolbar--rows" : "myeditor-toolbar";
   host.insertBefore(bar, host.firstChild);
 
   const buttons = new Map<string, HTMLButtonElement>();
   const dropdowns = new Map<string, HTMLSelectElement>();
 
-  for (const tool of tools) {
+  // Default to horizontal single-row layout with all tools
+  if (!tools && !useRows && !useSections) {
+    // Use all tools in horizontal layout
+    const allTools = TOOLBAR_ROWS.flatMap(row => row.tools);
+    allTools.forEach((tool, index) => {
+      if (index > 0 && shouldAddSeparator(tool, allTools[index - 1])) {
+        const separator = document.createElement("div");
+        separator.className = "myeditor-separator";
+        bar.appendChild(separator);
+      }
+      renderTool(tool, bar, buttons, dropdowns, view, refresh);
+    });
+  } else if (useRows && !tools) {
+    // Use two-row layout
+    TOOLBAR_ROWS.forEach((row, rowIndex) => {
+      const rowDiv = document.createElement("div");
+      rowDiv.className = "myeditor-toolbar-row";
+      
+      row.tools.forEach((tool, toolIndex) => {
+        if (toolIndex > 0 && shouldAddSeparator(tool, row.tools[toolIndex - 1])) {
+          const separator = document.createElement("div");
+          separator.className = "myeditor-separator";
+          rowDiv.appendChild(separator);
+        }
+        renderTool(tool, rowDiv, buttons, dropdowns, view, refresh);
+      });
+      
+      bar.appendChild(rowDiv);
+    });
+  } else if (useSections && !tools) {
+    // Use organized sections (legacy)
+    TOOLBAR_SECTIONS.forEach((section, sectionIndex) => {
+      if (sectionIndex > 0) {
+        // Add separator before each section (except first)
+        const separator = document.createElement("div");
+        separator.className = "myeditor-separator";
+        bar.appendChild(separator);
+      }
+
+      // Add section container
+      const sectionDiv = document.createElement("div");
+      sectionDiv.className = "myeditor-section";
+      sectionDiv.setAttribute("data-section", section.id);
+      
+      // Render tools in this section
+      section.tools.forEach(tool => {
+        renderTool(tool, sectionDiv, buttons, dropdowns, view, refresh);
+      });
+      
+      bar.appendChild(sectionDiv);
+    });
+  } else {
+    // Use custom tools list
+    const toolsToRender = tools || [];
+    toolsToRender.forEach(tool => {
+      renderTool(tool, bar, buttons, dropdowns, view, refresh);
+    });
+  }
+
+  // Helper function to determine if separator is needed
+  function shouldAddSeparator(currentTool: Tool, previousTool: Tool): boolean {
+    // Add separators after specific tools for logical grouping
+    const separatorAfter = ["blockType", "underline", "orderedList", "redo", "image"];
+    return separatorAfter.includes(previousTool.id);
+  }
+
+  function renderTool(
+    tool: Tool, 
+    container: HTMLElement, 
+    buttons: Map<string, HTMLButtonElement>, 
+    dropdowns: Map<string, HTMLSelectElement>,
+    view: EditorView,
+    refresh: () => void
+  ) {
     if (tool.type === "button") {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "myeditor-btn";
       btn.textContent = tool.label;
-      if (tool.title) btn.title = tool.title;
+      
+      // Enhanced tooltip
+      if (tool.title) {
+        btn.title = tool.title;
+        btn.setAttribute("data-tooltip", tool.title);
+      }
 
       btn.addEventListener("click", () => {
         view.focus();
@@ -38,15 +119,20 @@ export function mountToolbar({ target, view, tools }: Args): ToolbarInstance {
         refresh();
       });
 
-      bar.appendChild(btn);
+      container.appendChild(btn);
       buttons.set(tool.id, btn);
-      continue;
+      return;
     }
 
     if (tool.type === "dropdown") {
       const select = document.createElement("select");
       select.className = "myeditor-select";
-      if (tool.title) select.title = tool.title;
+      
+      // Enhanced tooltip
+      if (tool.title) {
+        select.title = tool.title;
+        select.setAttribute("data-tooltip", tool.title);
+      }
 
       for (const opt of tool.options) {
         const o = document.createElement("option");
@@ -61,22 +147,28 @@ export function mountToolbar({ target, view, tools }: Args): ToolbarInstance {
         refresh();
       });
 
-      bar.appendChild(select);
+      container.appendChild(select);
 
       // IMPORTANT: dropdown ko map me store karo, warna refresh() update nahi kar paayega
       dropdowns.set(tool.id, select);
-
-      continue;
+      return;
     }
 
     if (tool.type === "color") {
       const wrap = document.createElement("div");
       wrap.className = "myeditor-color";
+      
+      // Enhanced tooltip for color tool
+      if (tool.title) {
+        wrap.title = tool.title;
+        wrap.setAttribute("data-tooltip", tool.title);
+      }
 
       const clear = document.createElement("button");
       clear.type = "button";
       clear.className = "myeditor-btn";
       clear.textContent = tool.clearLabel ?? "Remove";
+      clear.title = "Remove color";
       clear.addEventListener("click", () => {
         view.focus();
         tool.onClear(view);
@@ -89,6 +181,7 @@ export function mountToolbar({ target, view, tools }: Args): ToolbarInstance {
         b.type = "button";
         b.className = "myeditor-color-btn";
         b.style.background = c;
+        b.title = `Apply color: ${c}`;
         b.addEventListener("click", () => {
           view.focus();
           tool.onPick(view, c);
@@ -97,13 +190,24 @@ export function mountToolbar({ target, view, tools }: Args): ToolbarInstance {
         wrap.appendChild(b);
       }
 
-      bar.appendChild(wrap);
-      continue;
+      container.appendChild(wrap);
+      return;
     }
   }
 
   function refresh() {
-    for (const tool of tools) {
+    // Get all tools from rows, sections, or flat list
+    let allTools: Tool[] = [];
+    
+    if (useRows && !tools) {
+      allTools = TOOLBAR_ROWS.flatMap(row => row.tools);
+    } else if (useSections && !tools) {
+      allTools = TOOLBAR_SECTIONS.flatMap(section => section.tools);
+    } else {
+      allTools = tools || [];
+    }
+
+    for (const tool of allTools) {
       if (tool.type === "button") {
         const btn = buttons.get(tool.id);
         if (!btn) continue;
@@ -133,7 +237,7 @@ export function mountToolbar({ target, view, tools }: Args): ToolbarInstance {
   return {
     refresh,
     destroy: () => {
-      host.innerHTML = "";
+      bar.remove();
     },
   };
 }

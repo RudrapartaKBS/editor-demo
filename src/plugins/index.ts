@@ -1,7 +1,7 @@
 import type { Plugin } from "prosemirror-state";
 import type { Schema } from "prosemirror-model";
 import { keymap } from "prosemirror-keymap";
-import { baseKeymap } from "prosemirror-commands";
+import { baseKeymap, splitBlock } from "prosemirror-commands";
 import { history } from "prosemirror-history";
 import { dropCursor } from "prosemirror-dropcursor";
 import { gapCursor } from "prosemirror-gapcursor";
@@ -17,10 +17,10 @@ export function buildPlugins(_schema: Schema, _opts: BuildPluginsOptions = {}) {
 
   plugins.push(history());
 
-  // Custom shortcuts first (override behavior if needed)
+  // Custom shortcuts first (highest priority)
   plugins.push(editorKeymap());
 
-  // Base keymap fallback
+  // Base keymap as fallback (lowest priority)
   plugins.push(keymap(baseKeymap));
 
   plugins.push(dropCursor());

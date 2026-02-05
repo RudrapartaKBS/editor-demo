@@ -47,12 +47,16 @@ export const blockTypeTool: Tool = {
     { label: "Paragraph", value: "p" },
     { label: "Heading 1", value: "h1" },
     { label: "Heading 2", value: "h2" },
+    { label: "Heading 3", value: "h3" },
   ],
   getValue(view) {
     const { $from } = view.state.selection;
     const node = $from.parent;
     if (node.type.name === "heading") {
-      return node.attrs.level === 1 ? "h1" : "h2";
+      const level = node.attrs.level;
+      if (level === 1) return "h1";
+      if (level === 2) return "h2";
+      if (level === 3) return "h3";
     }
     return "p";
   },
@@ -60,6 +64,7 @@ export const blockTypeTool: Tool = {
     if (value === "p") setParagraph(view.state, view.dispatch);
     if (value === "h1") setHeading(1)(view.state, view.dispatch);
     if (value === "h2") setHeading(2)(view.state, view.dispatch);
+    if (value === "h3") setHeading(3)(view.state, view.dispatch);
   },
 };
 
@@ -185,6 +190,76 @@ export const codeBlockTool: Tool = {
   isActive: (view) => isCodeBlockActive(view.state),
   run: (view) => toggleCodeBlock()(view.state, view.dispatch),
 };
+
+// Two-row toolbar layout - properly organized
+export const TOOLBAR_ROWS: { id: string; tools: Tool[] }[] = [
+  {
+    id: "row1",
+    tools: [
+      blockTypeTool,
+      boldTool,
+      italicTool,
+      underlineTool,
+      bulletListTool,
+      orderedListTool,
+      undoTool,
+      redoTool,
+      linkTool,
+      imageTool,
+      quoteTool,
+    ]
+  },
+  {
+    id: "row2", 
+    tools: [
+      fontSizeIncreaseTool,
+      fontSizeDecreaseTool,
+      textColorTool,
+      highlightTool,
+      embedTool,
+      codeBlockTool,
+    ]
+  }
+];
+
+// Organized toolbar sections (backward compatibility)
+export const TOOLBAR_SECTIONS: { id: string; label: string; tools: Tool[] }[] = [
+  {
+    id: "history",
+    label: "History",
+    tools: [undoTool, redoTool]
+  },
+  {
+    id: "blocks",
+    label: "Blocks",
+    tools: [blockTypeTool]
+  },
+  {
+    id: "formatting",
+    label: "Text Formatting",
+    tools: [boldTool, italicTool, underlineTool]
+  },
+  {
+    id: "typography",
+    label: "Typography",
+    tools: [fontSizeIncreaseTool, fontSizeDecreaseTool, textColorTool, highlightTool]
+  },
+  {
+    id: "links",
+    label: "Links & Media",
+    tools: [linkTool, imageTool, embedTool]
+  },
+  {
+    id: "code",
+    label: "Code",
+    tools: [codeBlockTool]
+  },
+  {
+    id: "lists",
+    label: "Lists & Quotes",
+    tools: [bulletListTool, orderedListTool, quoteTool]
+  }
+];
 
 export const DEFAULT_TOOLS: Tool[] = [
   undoTool,

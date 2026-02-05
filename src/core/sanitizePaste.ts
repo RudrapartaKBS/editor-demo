@@ -10,6 +10,9 @@ const ALLOWED_TAGS = new Set([
   "CODE", "PRE",
   "SPAN", // Allow span for colors and highlights
   "DIV", // Allow div for certain content
+  "IMG", // Allow images
+  "FIGURE", // Allow figure for image containers
+  "FIGCAPTION", // Allow figcaptions
 ]);
 
 function isSafeHref(href: string) {
@@ -64,6 +67,63 @@ export function sanitizePastedHTML(html: string) {
         el.setAttribute("rel", "nofollow noopener noreferrer");
       } else {
         unwrap(el);
+      }
+    } else if (tag === "IMG") {
+      // Handle images - keep essential attributes and detect alignment
+      const src = el.getAttribute("src") || "";
+      const alt = el.getAttribute("alt") || "";
+      const title = el.getAttribute("title") || "";
+      const width = el.getAttribute("width") || "";
+      const height = el.getAttribute("height") || "";
+      const style = el.getAttribute("style") || "";
+      
+      // Detect alignment from style
+      let align = "center"; // default
+      if (style.includes("float: left") || style.includes("float:left")) {
+        align = "left";
+      } else if (style.includes("float: right") || style.includes("float:right")) {
+        align = "right";
+      } else if (style.includes("display: block") || style.includes("margin: auto") || style.includes("margin-left: auto")) {
+        align = "center";
+      }
+      
+      // Clean all attributes first
+      const attrs = Array.from(el.attributes).map((a) => a.name);
+      for (const name of attrs) {
+        el.removeAttribute(name);
+      }
+      
+      // Re-add safe attributes with detected alignment
+      if (src && (src.startsWith("http") || src.startsWith("data:") || src.startsWith("/"))) {
+        el.setAttribute("src", src);
+        if (alt) el.setAttribute("alt", alt);
+        if (title) el.setAttribute("title", title);
+        if (width && /^\d+$/.test(width)) el.setAttribute("width", width);
+        if (height && /^\d+$/.test(height)) el.setAttribute("height", height);
+        el.setAttribute("data-align", align); // Store detected alignment
+      } else {
+        el.remove(); // Remove invalid images
+      }
+    } else if (tag === "FIGURE") {
+      // Keep figure elements for image containers and detect caption
+      const attrs = Array.from(el.attributes).map((a) => a.name);
+      for (const name of attrs) {
+        el.removeAttribute(name);
+      }
+      
+      // Check if there's a figcaption
+      const figcaption = el.querySelector("figcaption");
+      if (figcaption) {
+        const captionText = figcaption.textContent?.trim() || "";
+        if (captionText) {
+          el.setAttribute("data-caption", captionText);
+        }
+      }
+    } else if (tag === "FIGCAPTION") {
+      // Keep figcaption for image captions
+      const attrs = Array.from(el.attributes).map((a) => a.name);
+      for (const name of attrs) {
+        el.removeAttribute(name);
       }
     } else if (tag === "SPAN") {
       // Keep span with style for colors and formatting

@@ -9,10 +9,10 @@ export const imageNode: NodeSpec = {
     src: { default: null },
     alt: { default: "" },
     title: { default: null },
-    align: { default: "none" }, // "left" | "right" | "center" | "none"
+    align: { default: "center" }, // "left" | "right" | "center" | "none"
     width: { default: 320 },
     caption: { default: "" },
-    zoomable: { default: false },
+    zoomable: { default: true }, // Default to true for better UX
   },
   
   parseDOM: [
@@ -44,14 +44,19 @@ export const imageNode: NodeSpec = {
       tag: "img[src]",
       getAttrs(dom) {
         const el = dom as HTMLImageElement;
+        const align = el.getAttribute("data-align") || 
+                     (el.style.float === "left" ? "left" : 
+                      el.style.float === "right" ? "right" : "center");
+        const zoomable = el.getAttribute("data-zoomable") === "false" ? false : true; // Default to true
+        
         return {
           src: el.getAttribute("src"),
           alt: el.getAttribute("alt") || "",
           title: el.getAttribute("title"),
-          width: 320,
-          align: "none",
+          width: parseInt(el.getAttribute("data-width") || el.getAttribute("width") || "320"),
+          align,
           caption: "",
-          zoomable: el.getAttribute("data-zoom") === "true",
+          zoomable,
         };
       },
     },

@@ -71,7 +71,7 @@ export function createEditor(target: string | HTMLElement, config: EditorConfig 
 
   let changeTimer: number | null = null;
 
-  // Create view
+  // Create enhanced view with better paste handling
   const view = new EditorView(mount, {
     state,
     editable: () => true,
@@ -81,15 +81,101 @@ export function createEditor(target: string | HTMLElement, config: EditorConfig 
       contenteditable: "true",
       "data-placeholder": config.placeholder || "Start typing...",
       tabindex: "0"
-    },    nodeViews: {
+    },
+    nodeViews: {
       image: (node, view, getPos) => new ImageNodeView(node, view, getPos),
       embed: (node, view, getPos) => new EmbedNodeView(node, view, getPos),
-    },    transformPastedHTML(html) {
+    },
+    transformPastedHTML(html) {
       // Keep rich formatting while sanitizing dangerous content
       const clean = sanitizePastedHTML(html);
       console.log("RAW PASTE:", html);
       console.log("CLEANED PASTE:", clean);
-      return clean;
+      
+      // Process cleaned HTML to ensure images have proper attributes
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = clean;
+      
+      const images = tempDiv.querySelectorAll('img');
+      images.forEach(img => {
+        // Detect alignment from style or attributes
+        let align = 'center';
+        const imgStyle = img.getAttribute('style') || '';
+        if (imgStyle.includes('float: left') || img.getAttribute('align') === 'left') {
+          align = 'left';
+        } else if (imgStyle.includes('float: right') || img.getAttribute('align') === 'right') {
+          align = 'right';
+        }
+        
+        // Set proper data attributes for MyEditor
+        img.setAttribute('data-align', align);
+        img.setAttribute('data-zoomable', 'true');
+        img.setAttribute('data-caption', '');
+        
+        // Add default dimensions if missing (important for resize)
+        const width = img.getAttribute('width') || img.getAttribute('data-width') || '400';
+        const height = img.getAttribute('height') || img.getAttribute('data-height') || '300';
+        img.setAttribute('data-width', width);
+        img.setAttribute('data-height', height);
+        
+        // Ensure proper alt and title attributes
+        if (!img.getAttribute('alt')) {
+          img.setAttribute('alt', 'Pasted image');
+        }
+        if (!img.getAttribute('title')) {
+          img.setAttribute('title', img.getAttribute('alt') || 'Pasted image');
+        }
+      });
+      
+      return tempDiv.innerHTML;
+    },
+    handlePaste(view, event, slice) {
+      // Handle file drops/pastes (including images)
+      const clipboardData = event.clipboardData;
+      if (clipboardData?.files.length) {
+        const files = Array.from(clipboardData.files);
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        
+        if (imageFiles.length > 0) {
+          event.preventDefault();
+          
+          imageFiles.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const dataUrl = e.target?.result as string;
+              if (dataUrl) {
+                const { tr } = view.state;
+                const imageNode = schema.nodes.image.create({
+                  src: dataUrl,
+                  alt: file.name || "Pasted image",
+                  title: file.name || "Pasted image", 
+                  width: 400,
+                  height: 300,
+                  align: 'center',
+                  caption: '',
+                  zoomable: true // Ensure pasted images are zoomable
+                });
+                
+                const newTr = tr.replaceSelectionWith(imageNode);
+                view.dispatch(newTr);
+                
+                // Focus and select the new image
+                setTimeout(() => {
+                  view.focus();
+                  // Refresh zoom listeners for new image
+                  imageZoom.refresh();
+                }, 10);
+              }
+            };
+            reader.readAsDataURL(file);
+          });
+          
+          return true; // Prevent default paste handling
+        }
+      }
+      
+      // Let ProseMirror handle other paste operations
+      return false;
     },
     dispatchTransaction(tr) {
       console.log('📝 Transaction:', tr.docChanged, tr.steps.length);
@@ -125,6 +211,8 @@ export function createEditor(target: string | HTMLElement, config: EditorConfig 
       target: config.toolbar.target,
       view,
       tools: config.toolbar.tools,
+      useSections: config.toolbar.useSections,
+      useRows: config.toolbar.useRows, // Default to horizontal single row
     });
 
     // initial sync
@@ -141,26 +229,51 @@ export function createEditor(target: string | HTMLElement, config: EditorConfig 
     return { json, html, text };
   };
 
-  // Focus editor immediately to make it interactive
-  setTimeout(() => {
-    view.focus();
-  }, 50);
-
-  return {
+  // Enhanced API with additional utility methods
+  const api: EditorAPI = {
     view,
     getJSON: () => ({ schemaVersion: SCHEMA_VERSION, doc: view.state.doc.toJSON() }),
     getHTML: () => toHTML(view),
     getValue,
     getContent: () => ({ schemaVersion: SCHEMA_VERSION, doc: view.state.doc.toJSON() }),
     setContent: (content: any) => {
-      const doc = schema.nodeFromJSON(content.doc || content);
-      const state = view.state;
-      const tr = state.tr.replaceWith(0, state.doc.content.size, doc.content);
-      view.dispatch(tr);
+      try {
+        const doc = schema.nodeFromJSON(content.doc || content);
+        const state = view.state;
+        const tr = state.tr.replaceWith(0, state.doc.content.size, doc.content);
+        view.dispatch(tr);
+      } catch (error) {
+        console.warn("Error setting content:", error);
+      }
     },
     getText: () => view.state.doc.textBetween(0, view.state.doc.content.size, "\n", "\n"),
-    focus: () => view.focus(),
+    focus: () => {
+      view.focus();
+      // Ensure cursor is visible after focus
+      setTimeout(() => {
+        const { selection } = view.state;
+        view.dispatch(view.state.tr.setSelection(selection));
+      }, 10);
+    },
     hasChanges: () => view.state.doc.content.size > 0,
+    // Enhanced utility methods
+    insertContent: (content: string) => {
+      const { tr, selection } = view.state;
+      tr.insertText(content, selection.from, selection.to);
+      view.dispatch(tr);
+    },
+    insertHTML: (html: string) => {
+      const cleanHTML = sanitizePastedHTML(html);
+      const parser = PMDOMParser.fromSchema(schema);
+      const doc = parser.parse(new DOMParser().parseFromString(cleanHTML, 'text/html').body);
+      const { tr, selection } = view.state;
+      tr.replaceWith(selection.from, selection.to, doc.content);
+      view.dispatch(tr);
+    },
+    getWordCount: () => {
+      const text = view.state.doc.textBetween(0, view.state.doc.content.size, " ", " ");
+      return text.trim() ? text.trim().split(/\s+/).length : 0;
+    },
     destroy: () => {
       view.destroy();
       if (textareaEl) textareaEl.style.display = "";
@@ -169,4 +282,11 @@ export function createEditor(target: string | HTMLElement, config: EditorConfig 
       imageZoom.destroy();
     },
   };
+
+  // Focus editor immediately to make it interactive
+  setTimeout(() => {
+    view.focus();
+  }, 50);
+
+  return api;
 }

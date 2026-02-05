@@ -38,7 +38,9 @@ export type Tool =
  */
 export type ToolbarConfig = {
   target: string | HTMLElement;   // where toolbar will mount
-  tools: Tool[];                  // ordered tools
+  tools?: Tool[];                 // ordered tools (optional when using sections/rows)
+  useSections?: boolean;          // use organized sections (default: false)
+  useRows?: boolean;              // use two-row layout (default: true)
 };
 
 /**
@@ -66,6 +68,10 @@ export type EditorAPI = {
   focus: () => void;
   hasChanges: () => boolean;
   destroy: () => void;
+  // Enhanced utility methods
+  insertContent: (content: string) => void;
+  insertHTML: (html: string) => void;
+  getWordCount: () => number;
   // Future-proof public API (Phase 2)
   exec?: (command: string, attrs?: any) => boolean;
   canExec?: (command: string, attrs?: any) => boolean;

@@ -105,7 +105,8 @@ const editor = createEditor("#editor", {
   initialJSON: initialContent,
   toolbar: {
     target: "#toolbar",
-    tools: DEFAULT_TOOLS,
+    // Use two-row layout
+    useRows: true,
   },
   onChange: ({ json, text }) => {
     out.textContent = JSON.stringify(json, null, 2);
@@ -119,6 +120,9 @@ const editor = createEditor("#editor", {
     }, 1000);
   },
 });
+
+console.log('🎯 Editor created successfully:', editor);
+console.log('📋 Toolbar target element:', document.querySelector("#toolbar"));
 
 // Copy JSON functionality
 document.getElementById("copyJson")?.addEventListener("click", async () => {

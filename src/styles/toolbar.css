@@ -1,9 +1,9 @@
 /* src/styles/toolbar.css */
 
 .myeditor-toolbar {
-  display: flex;
+  display: flex !important;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   padding: 12px 16px;
   border: 1px solid #e1e5e9;
   border-radius: 12px 12px 0 0;
@@ -14,25 +14,145 @@
   min-height: 56px;
   position: relative;
   border-bottom: none;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Two-row horizontal toolbar layout */
+.myeditor-toolbar--rows {
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 16px;
+  min-height: 70px;
+  align-items: stretch;
+}
+
+.myeditor-toolbar-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+/* Toolbar sections for single row */
+.myeditor-section {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/* Toolbar separators */
+.myeditor-separator {
+  width: 1px;
+  height: 24px;
+  background: #d1d5db;
+  margin: 0 6px;
+  opacity: 0.7;
+  flex-shrink: 0;
 }
 
 .myeditor-btn {
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 8px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 6px;
   border: 1px solid transparent;
   background: transparent;
   color: #4a5568;
   cursor: pointer;
   user-select: none;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
+  min-width: 34px;
   position: relative;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.myeditor-select {
+  height: 34px;
+  border-radius: 6px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #4a5568;
+  font-size: 13px;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.myeditor-color {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.myeditor-color-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,.15);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Enhanced tooltips */
+.myeditor-btn[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  animation: tooltipFadeIn 0.2s ease;
+}
+
+.myeditor-btn[data-tooltip]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.9);
+  z-index: 1001;
+  pointer-events: none;
+}
+
+.myeditor-select[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  animation: tooltipFadeIn 0.2s ease;
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(5px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 .myeditor-btn:hover {
@@ -190,6 +310,8 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   position: relative;
   margin: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .myeditor-image-dialog .dialog-header {
@@ -207,8 +329,9 @@
 
 .myeditor-image-dialog .dialog-body {
   padding: 24px;
-  max-height: 60vh;
+  max-height: 45vh;
   overflow-y: auto;
+  flex: 1;
 }
 
 /* Dialog Tabs */
