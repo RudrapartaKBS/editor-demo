@@ -1,6 +1,8 @@
 import { NodeView } from "prosemirror-view";
 import { Node } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
+import { FaExpandArrowsAlt } from "react-icons/fa";
+
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
@@ -37,7 +39,7 @@ export class ImageNodeView implements NodeView {
     fig.setAttribute("data-width", String(safeW));
     fig.setAttribute("data-align", String(align));
     fig.setAttribute("data-zoomable", String(zoomable));
-    
+
     // Apply styles based on alignment
     if (align === "center") {
       fig.style.maxWidth = `${safeW}px`;
@@ -74,11 +76,11 @@ export class ImageNodeView implements NodeView {
     cap.setAttribute("data-pm-caption", "true");
     cap.style.outline = "none"; // Remove browser focus outline
     cap.setAttribute("spellcheck", "true");
-    
+
     // Create resize handle with proper cursor
     const handle = document.createElement("div");
     handle.className = "pm-resize-handle";
-    handle.innerHTML = "⋮⋮";
+    handle.innerHTML = "&#8690;";
     handle.setAttribute("title", "Drag to resize");
     handle.style.cursor = "col-resize";
     handle.style.userSelect = "none";
@@ -86,7 +88,7 @@ export class ImageNodeView implements NodeView {
     // Create controls for alignment, zoom, and editing
     const controls = document.createElement("div");
     controls.className = "pm-image-controls";
-    
+
     this.updateControlsLayout(controls, safeW);
 
     // Assemble DOM
@@ -102,16 +104,16 @@ export class ImageNodeView implements NodeView {
     this.controls = controls;
 
     this.bindEvents();
-    
+
     // Add class for easier targeting and better visibility
     this.dom.addEventListener('mouseenter', () => {
       this.dom.classList.add('pm-figure--hovered');
     });
-    
+
     this.dom.addEventListener('mouseleave', () => {
       this.dom.classList.remove('pm-figure--hovered');
     });
-    
+
     // Show controls when image is clicked
     this.img.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -125,7 +127,7 @@ export class ImageNodeView implements NodeView {
 
   updateControlsLayout(controls: HTMLElement, width: number) {
     const { align, zoomable } = this.node.attrs;
-    
+
     // Determine layout based on width
     if (width <= 250) {
       // Compact layout for small images
@@ -149,7 +151,6 @@ export class ImageNodeView implements NodeView {
       // Medium layout
       controls.innerHTML = `
         <div class="pm-controls-row">
-          <label>Align:</label>
           <select class="pm-align-select">
             <option value="none" ${align === 'none' ? 'selected' : ''}>None</option>
             <option value="left" ${align === 'left' ? 'selected' : ''}>Left</option>
@@ -157,7 +158,7 @@ export class ImageNodeView implements NodeView {
             <option value="right" ${align === 'right' ? 'selected' : ''}>Right</option>
           </select>
           <label>
-            <input type="checkbox" class="pm-zoom-checkbox" ${zoomable ? 'checked' : ''}> 
+            <input type="checkbox" class="pm-zoom-checkbox" ${zoomable ? 'checked' : ''}>            
             Zoom
           </label>
           <button type="button" class="pm-edit-btn" title="Edit image properties">✏️</button>
@@ -189,7 +190,7 @@ export class ImageNodeView implements NodeView {
   bindEvents() {
     // Resize functionality
     this.bindResize();
-    
+
     // Caption editing functionality
     this.cap.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -208,12 +209,12 @@ export class ImageNodeView implements NodeView {
     this.cap.addEventListener("blur", (e) => {
       e.stopPropagation();
       const newCaption = this.cap.textContent?.trim() || "";
-      
+
       // Only update if caption actually changed
       if (newCaption !== this.node.attrs.caption) {
         this.updateAttrs({ caption: newCaption });
       }
-      
+
       if (!newCaption) {
         this.cap.textContent = "Click to add caption";
         this.cap.className = "pm-caption pm-caption--empty";
@@ -259,7 +260,7 @@ export class ImageNodeView implements NodeView {
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
-      
+
       // Get plain text from clipboard and insert it
       const clipboardData = e.clipboardData;
       if (clipboardData) {
@@ -267,7 +268,7 @@ export class ImageNodeView implements NodeView {
         if (text) {
           // Clean the text - remove any HTML tags and format characters
           const cleanText = text.replace(/<[^>]*>/g, '').replace(/[\n\r]/g, ' ').trim();
-          
+
           if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
             // Modern approach - insert plain text only
             document.execCommand('insertText', false, cleanText);
@@ -299,7 +300,7 @@ export class ImageNodeView implements NodeView {
     this.cap.addEventListener("drop", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      
+
       // Only allow plain text drops
       const text = e.dataTransfer?.getData('text/plain');
       if (text) {
@@ -317,13 +318,13 @@ export class ImageNodeView implements NodeView {
     // Controls functionality
     this.syncControlsWithAttrs();
     this.bindControlEvents();
-    
+
     // Add keyboard shortcuts for image when selected
     this.dom.addEventListener("keydown", (e) => {
       if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if (confirm("Delete this image?")) {
           const pos = this.getPos();
           if (typeof pos === "number") {
@@ -332,19 +333,19 @@ export class ImageNodeView implements NodeView {
           }
         }
       }
-      
+
       // Handle Enter key to insert paragraph after image (regardless of alignment)
       if (e.key === "Enter") {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const pos = this.getPos();
         if (typeof pos === "number") {
           const insertPos = pos + this.node.nodeSize;
           const paragraph = this.view.state.schema.nodes.paragraph.create();
           const tr = this.view.state.tr.insert(insertPos, paragraph);
           this.view.dispatch(tr);
-          
+
           // Focus the new paragraph
           setTimeout(() => {
             this.view.focus();
@@ -354,7 +355,7 @@ export class ImageNodeView implements NodeView {
           }, 10);
         }
       }
-      
+
       // Handle Arrow keys for better navigation around floated images
       if ((e.key === "ArrowDown" || e.key === "ArrowRight") && this.node.attrs.align !== "center") {
         const pos = this.getPos();
@@ -406,24 +407,24 @@ export class ImageNodeView implements NodeView {
 
     this.onMove = (e: MouseEvent | TouchEvent) => {
       if (!this.isResizing || !isDragging) return;
-      
+
       e.preventDefault();
       e.stopPropagation();
-      
+
       const clientX = 'clientX' in e ? e.clientX : e.touches[0].clientX;
       const clientY = 'clientY' in e ? e.clientY : e.touches[0].clientY;
       const dx = clientX - startX;
       const dy = clientY - startY;
-      
+
       // Calculate new dimensions maintaining aspect ratio
       const nextW = clamp(startW + dx, 100, 1200);
       const aspectRatio = startH / startW;
       const nextH = Math.round(nextW * aspectRatio);
-      
+
       // Update visual immediately for smooth feedback
       this.dom.style.maxWidth = `${nextW}px`;
       this.dom.setAttribute("data-width", String(nextW));
-      
+
       // Debounce actual state update
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = window.setTimeout(() => {
@@ -437,7 +438,7 @@ export class ImageNodeView implements NodeView {
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
       document.body.style.pointerEvents = "";
-      
+
       if (this.onMove) {
         window.removeEventListener("mousemove", this.onMove as any);
         window.removeEventListener("touchmove", this.onMove as any);
@@ -446,9 +447,9 @@ export class ImageNodeView implements NodeView {
         window.removeEventListener("mouseup", this.onUp);
         window.removeEventListener("touchend", this.onUp);
       }
-      
+
       this.handle.style.cursor = "nwse-resize";
-      
+
       // Clear any pending resize updates
       if (this.resizeTimeout) {
         clearTimeout(this.resizeTimeout);
@@ -486,9 +487,9 @@ export class ImageNodeView implements NodeView {
     this.handle.addEventListener("touchstart", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      
+
       if (e.touches.length !== 1) return;
-      
+
       const touch = e.touches[0];
       isDragging = true;
       this.isResizing = true;
@@ -522,17 +523,17 @@ export class ImageNodeView implements NodeView {
       // Remove existing listeners by cloning the element
       const newAlignSelect = alignSelect.cloneNode(true) as HTMLSelectElement;
       alignSelect.parentNode?.replaceChild(newAlignSelect, alignSelect);
-      
+
       // Set value and add fresh listener
       newAlignSelect.value = this.node.attrs.align || 'center';
-      
+
       newAlignSelect.addEventListener("change", (e) => {
         e.stopPropagation();
         e.preventDefault();
         console.log('Align changed to:', newAlignSelect.value);
         this.updateAttrs({ align: newAlignSelect.value });
       });
-      
+
       // Ensure dropdown is clickable
       newAlignSelect.addEventListener("mousedown", (e) => {
         e.stopPropagation();
@@ -543,17 +544,17 @@ export class ImageNodeView implements NodeView {
       // Remove existing listeners by cloning the element
       const newZoomCheckbox = zoomCheckbox.cloneNode(true) as HTMLInputElement;
       zoomCheckbox.parentNode?.replaceChild(newZoomCheckbox, zoomCheckbox);
-      
+
       // Set value and add fresh listener
       newZoomCheckbox.checked = this.node.attrs.zoomable !== false;
-      
+
       newZoomCheckbox.addEventListener("change", (e) => {
         e.stopPropagation();
         e.preventDefault();
         console.log('Zoom changed to:', newZoomCheckbox.checked);
         this.updateAttrs({ zoomable: newZoomCheckbox.checked });
       });
-      
+
       // Make label clickable
       const label = newZoomCheckbox.closest('label');
       if (label) {
@@ -567,7 +568,7 @@ export class ImageNodeView implements NodeView {
       // Remove existing listeners by cloning the element
       const newEditBtn = editBtn.cloneNode(true) as HTMLButtonElement;
       editBtn.parentNode?.replaceChild(newEditBtn, editBtn);
-      
+
       newEditBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         this.openImageEditDialog();
@@ -578,10 +579,10 @@ export class ImageNodeView implements NodeView {
       // Remove existing listeners by cloning the element
       const newDeleteBtn = deleteBtn.cloneNode(true) as HTMLButtonElement;
       deleteBtn.parentNode?.replaceChild(newDeleteBtn, deleteBtn);
-      
+
       newDeleteBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        
+
         if (confirm("Delete this image?")) {
           const pos = this.getPos();
           if (typeof pos === "number") {
@@ -596,11 +597,11 @@ export class ImageNodeView implements NodeView {
   private syncControlsWithAttrs() {
     const alignSelect = this.controls.querySelector(".pm-align-select") as HTMLSelectElement;
     const zoomCheckbox = this.controls.querySelector(".pm-zoom-checkbox") as HTMLInputElement;
-    
+
     if (alignSelect) {
       alignSelect.value = this.node.attrs.align || 'center';
     }
-    
+
     if (zoomCheckbox) {
       zoomCheckbox.checked = this.node.attrs.zoomable !== false;
     }
@@ -611,21 +612,21 @@ export class ImageNodeView implements NodeView {
       console.warn("Attempting to update attributes on destroyed node");
       return;
     }
-    
+
     try {
       const pos = this.getPos();
       if (typeof pos !== "number" || pos < 0) {
         console.warn("Invalid position for updateAttrs:", pos);
         return;
       }
-      
+
       // Check if position is within document bounds
       const docSize = this.view.state.doc.content.size;
       if (pos >= docSize) {
         console.warn("Position out of document bounds:", pos, "docSize:", docSize);
         return;
       }
-      
+
       // Verify the node still exists at this position
       try {
         const nodeAtPos = this.view.state.doc.nodeAt(pos);
@@ -637,12 +638,12 @@ export class ImageNodeView implements NodeView {
         console.warn("Error checking node at position:", e);
         return;
       }
-      
+
       const tr = this.view.state.tr.setNodeMarkup(pos, undefined, {
         ...this.node.attrs,
         ...attrs,
       });
-      
+
       this.view.dispatch(tr);
     } catch (error) {
       console.warn("Error updating image attributes:", error);
@@ -652,7 +653,7 @@ export class ImageNodeView implements NodeView {
 
   update(node: Node) {
     if (node.type !== this.node.type) return false;
-    
+
     this.node = node;
     const { width, align, zoomable, caption } = node.attrs;
     const safeW = Number.isFinite(width) && width > 0 ? width : 320;
@@ -662,13 +663,13 @@ export class ImageNodeView implements NodeView {
     this.dom.setAttribute("data-width", String(safeW));
     this.dom.setAttribute("data-align", String(align));
     this.dom.setAttribute("data-zoomable", String(zoomable));
-    
+
     // Update controls layout based on new size
     this.updateControlsLayout(this.controls, safeW);
-    
+
     // Sync controls with new attributes
     this.syncControlsWithAttrs();
-    
+
     // Update styles based on alignment
     if (align === "center") {
       this.dom.style.maxWidth = `${safeW}px`;
@@ -690,7 +691,7 @@ export class ImageNodeView implements NodeView {
 
     // Update image zoomable class
     this.img.className = zoomable ? "zoomable" : "";
-    
+
     // Also ensure the figure has the right classes
     this.dom.className = `pm-figure pm-figure--${align} ${zoomable ? 'zoomable' : ''}`;
 
@@ -706,7 +707,7 @@ export class ImageNodeView implements NodeView {
     // Update controls
     const alignSelect = this.controls.querySelector(".pm-align-select") as HTMLSelectElement;
     const zoomCheckbox = this.controls.querySelector(".pm-zoom-checkbox") as HTMLInputElement;
-    
+
     alignSelect.value = align;
     zoomCheckbox.checked = zoomable;
 
@@ -781,9 +782,9 @@ export class ImageNodeView implements NodeView {
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(dialog);
-    
+
     // Handle dialog events
     const cancelBtn = dialog.querySelector(".btn-cancel") as HTMLButtonElement;
     const updateBtn = dialog.querySelector(".btn-insert") as HTMLButtonElement;
@@ -793,14 +794,14 @@ export class ImageNodeView implements NodeView {
     const captionInput = dialog.querySelector(".caption-input") as HTMLInputElement;
     const altInput = dialog.querySelector(".alt-input") as HTMLInputElement;
     const zoomCheckbox = dialog.querySelector(".zoom-checkbox") as HTMLInputElement;
-    
+
     const closeDialog = () => {
       dialog.remove();
       this.view.focus();
     };
-    
+
     cancelBtn.addEventListener("click", closeDialog);
-    
+
     updateBtn.addEventListener("click", () => {
       const newAttrs = {
         src: urlInput.value.trim() || this.node.attrs.src,
@@ -810,18 +811,18 @@ export class ImageNodeView implements NodeView {
         alt: altInput.value.trim(),
         zoomable: zoomCheckbox.checked
       };
-      
+
       this.updateAttrs(newAttrs);
       closeDialog();
     });
-    
+
     // Close on backdrop click (clicking outside dialog)
     dialog.addEventListener("click", (e) => {
       if (e.target === dialog) {
         closeDialog();
       }
     });
-    
+
     // Escape key to close
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -830,7 +831,7 @@ export class ImageNodeView implements NodeView {
       }
     };
     document.addEventListener("keydown", handleEscape);
-    
+
     // Focus first input
     urlInput.focus();
     urlInput.select();
@@ -839,7 +840,7 @@ export class ImageNodeView implements NodeView {
   destroy() {
     // Mark as destroyed to prevent further updates
     this.isDestroyed = true;
-    
+
     if (this.onMove) window.removeEventListener("mousemove", this.onMove);
     if (this.onUp) window.removeEventListener("mouseup", this.onUp);
   }
