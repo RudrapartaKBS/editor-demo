@@ -1,0 +1,340 @@
+/**
+ * ==========================================
+ * MYEDITOR - CLEAN IMAGE SYSTEM CSS
+ * ==========================================
+ * 
+ * Structure:
+ * .myeditor-image-wrapper (main container)
+ *   .myeditor-image-container (content holder)
+ *     .myeditor-image-content (image + overlay)
+ *       .myeditor-image (actual image)
+ *       .myeditor-image-overlay (controls overlay)
+ *         .myeditor-image-controls (control panel)
+ *         .myeditor-resize-handle (resize handle)
+ *     .myeditor-image-caption (caption area)
+ */
+
+/* ==========================================
+   BASE IMAGE WRAPPER
+   ========================================== */
+.myeditor-root .myeditor-image-wrapper {
+  position: relative;
+  display: block;
+  margin: 1rem 0;
+  max-width: 100%;
+  clear: both;
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   ALIGNMENT VARIANTS
+   ========================================== */
+.myeditor-root .myeditor-image-wrapper--center {
+  margin: 1rem auto;
+  display: block;
+}
+
+.myeditor-root .myeditor-image-wrapper--left {
+  float: left;
+  margin: 0 1rem 1rem 0;
+  clear: left;
+}
+
+.myeditor-root .myeditor-image-wrapper--right {
+  float: right;
+  margin: 0 0 1rem 1rem;
+  clear: right;
+}
+
+.myeditor-root .myeditor-image-wrapper--none {
+  margin: 1rem 0;
+  display: block;
+}
+
+/* ==========================================
+   IMAGE CONTAINER
+   ========================================== */
+.myeditor-root .myeditor-image-container {
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.myeditor-root .myeditor-image-container:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================
+   IMAGE CONTENT AREA
+   ========================================== */
+.myeditor-root .myeditor-image-content {
+  position: relative;
+  width: 100%;
+  background: #f9fafb;
+}
+
+/* ==========================================
+   ACTUAL IMAGE
+   ========================================== */
+.myeditor-root .myeditor-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: none;
+  outline: none;
+  background: #f9fafb;
+  transition: transform 0.3s ease;
+}
+
+.myeditor-root .myeditor-image--zoomable {
+  cursor: zoom-in;
+}
+
+.myeditor-root .myeditor-image--zoomable:hover {
+  transform: scale(1.02);
+}
+
+/* ==========================================
+   OVERLAY SYSTEM
+   ========================================== */
+.myeditor-root .myeditor-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.myeditor-root .myeditor-image-wrapper:hover .myeditor-image-overlay,
+.myeditor-root .myeditor-image-wrapper.selected .myeditor-image-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ==========================================
+   IMAGE CONTROLS
+   ========================================== */
+.myeditor-root .myeditor-image-controls {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.myeditor-root .myeditor-image-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.myeditor-root .myeditor-image-control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.myeditor-root .myeditor-image-control-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+}
+
+/* ==========================================
+   CONTROL ELEMENTS
+   ========================================== */
+.myeditor-root .myeditor-align-select {
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  min-width: 80px;
+}
+
+.myeditor-root .myeditor-zoom-label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.myeditor-root .myeditor-zoom-checkbox {
+  margin: 0;
+  cursor: pointer;
+}
+
+.myeditor-root .myeditor-image-actions {
+  margin-left: auto;
+}
+
+.myeditor-root .myeditor-edit-btn,
+.myeditor-root .myeditor-delete-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.myeditor-root .myeditor-edit-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.myeditor-root .myeditor-edit-btn:hover {
+  background: #2563eb;
+}
+
+.myeditor-root .myeditor-delete-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.myeditor-root .myeditor-delete-btn:hover {
+  background: #dc2626;
+}
+
+/* ==========================================
+   RESIZE HANDLE
+   ========================================== */
+.myeditor-root .myeditor-resize-handle {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 16px;
+  height: 16px;
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  border-radius: 0 0 8px 0;
+  cursor: nw-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  user-select: none;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.myeditor-root .myeditor-resize-handle:hover {
+  background: rgba(59, 130, 246, 1);
+  transform: scale(1.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================
+   IMAGE CAPTION
+   ========================================== */
+.myeditor-root .myeditor-image-caption {
+  padding: 12px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 14px;
+  text-align: center;
+  outline: none;
+  cursor: text;
+  min-height: 20px;
+  transition: all 0.2s ease;
+}
+
+.myeditor-root .myeditor-image-caption:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.myeditor-root .myeditor-image-caption:focus {
+  background: #fff;
+  color: #1e293b;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.myeditor-root .myeditor-image-caption--empty {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.myeditor-root .myeditor-image-caption--empty:focus {
+  color: #1e293b;
+  font-style: normal;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+@media (max-width: 768px) {
+  .myeditor-root .myeditor-image-wrapper--left,
+  .myeditor-root .myeditor-image-wrapper--right {
+    float: none;
+    margin: 1rem 0;
+    max-width: 100%;
+  }
+  
+  .myeditor-root .myeditor-image-controls-row {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  
+  .myeditor-root .myeditor-image-control-group {
+    justify-content: center;
+  }
+  
+  .myeditor-root .myeditor-image-actions {
+    margin-left: 0;
+    justify-content: center;
+  }
+}
+
+/* ==========================================
+   SELECTION STATES
+   ========================================== */
+.myeditor-root .myeditor-image-wrapper.selected .myeditor-image-container {
+  border: 2px solid #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.myeditor-root .myeditor-image-wrapper.selected .myeditor-image-controls {
+  background: rgba(59, 130, 246, 0.95);
+  color: white;
+}
+
+.myeditor-root .myeditor-image-wrapper.selected .myeditor-image-control-group label {
+  color: white;
+}
+
+/* ==========================================
+   ANIMATION & TRANSITIONS
+   ========================================== */
+.myeditor-root .myeditor-image-wrapper {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.myeditor-root .myeditor-image-container {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.myeditor-root .myeditor-image-overlay {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

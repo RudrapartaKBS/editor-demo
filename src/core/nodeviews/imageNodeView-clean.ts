@@ -95,7 +95,7 @@ export class ImageNodeView implements NodeView {
     // Create resize handle
     const handle = document.createElement("div");
     handle.className = "myeditor-resize-handle";
-    handle.innerHTML = "↘";
+    handle.innerHTML = "⟲";
     handle.setAttribute("title", "Drag to resize");
 
     // Create caption

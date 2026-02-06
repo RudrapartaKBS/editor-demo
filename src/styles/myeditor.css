@@ -1,6 +1,13 @@
 /* src/styles/myeditor.css */
 
-/* ProseMirror base (keep minimal, stable) */
+/* ==========================================
+   CLEAN IMAGE SYSTEM IMPORT
+   ========================================== */
+@import './image-system.css';
+
+/* ==========================================
+   PROSEMIRROR BASE STYLES
+   ========================================== */
 .ProseMirror {
   position: relative;
   outline: none;
