@@ -158,7 +158,8 @@
 .myeditor-btn:hover {
   background: rgba(74, 85, 104, 0.08);
   border-color: rgba(74, 85, 104, 0.2);
-  transform: translateY(-1px);
+  /* transform: translateY(-1px); */
+  z-index: 1;
 }
 
 .myeditor-btn.is-active {

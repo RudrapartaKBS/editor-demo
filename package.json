@@ -40,7 +40,8 @@
     "prosemirror-schema-basic": "^1.2.4",
     "prosemirror-schema-list": "^1.5.1",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-view": "^1.41.5"
+    "prosemirror-view": "^1.41.5",
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
