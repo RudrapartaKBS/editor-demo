@@ -143,7 +143,7 @@ export class ImageNodeView implements NodeView {
     return `
       <div class="myeditor-image-controls-row">
         <div class="myeditor-image-control-group">
-          <label>Align:</label>
+          
           <select class="myeditor-align-select">
             <option value="none" ${align === 'none' ? 'selected' : ''}>None</option>
             <option value="left" ${align === 'left' ? 'selected' : ''}>Left</option>
@@ -160,8 +160,22 @@ export class ImageNodeView implements NodeView {
         </div>
         
         <div class="myeditor-image-control-group myeditor-image-actions">
-          <button type="button" class="myeditor-edit-btn" title="Edit image">✏️</button>
-          <button type="button" class="myeditor-delete-btn" title="Delete image">🗑️</button>
+          <button type="button" class="myeditor-edit-btn" title="Edit image">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            </svg>
+          </button>
+            
+          <button type="button" class="myeditor-delete-btn" title="Delete image">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6"/>
+              <path d="M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+          </button>
         </div>
       </div>
     `;

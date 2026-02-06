@@ -330,7 +330,7 @@
 
 .myeditor-image-dialog .dialog-body {
   padding: 24px;
-  max-height: 45vh;
+  max-height: 40vh;
   overflow-y: auto;
   flex: 1;
 }
@@ -430,7 +430,7 @@
 
 .myeditor-image-dialog .form-group input,
 .myeditor-image-dialog .form-group select {
-  width: 100%;
+  width: 90%;
   padding: 10px 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;

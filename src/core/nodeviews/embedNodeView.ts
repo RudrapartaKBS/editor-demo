@@ -72,22 +72,35 @@ export class EmbedNodeView implements NodeView {
     this.controls.style.display = "none";
     this.controls.innerHTML = `
       <div class="pm-controls-row">
-        <label>Size:</label>
+        
         <select class="pm-size-select">
           <option value="small">Small (400×225)</option>
           <option value="medium" selected>Medium (560×315)</option>
           <option value="large">Large (800×450)</option>
           <option value="full">Full Width</option>
         </select>
-        <label>Align:</label>
+        
         <select class="pm-align-select">
           <option value="none">None</option>
           <option value="left">Left</option>
           <option value="center" selected>Center</option>
           <option value="right">Right</option>
         </select>
-        <button class="pm-edit-btn" title="Edit embed">✏️</button>
-        <button class="pm-delete-btn" title="Delete embed">🗑️</button>
+        <button class="pm-edit-btn" title="Edit embed">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            </svg>
+        </button>
+        <button class="pm-delete-btn" title="Delete embed">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6"/>
+              <path d="M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+        </button>
       </div>
     `;
 

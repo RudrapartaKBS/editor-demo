@@ -131,11 +131,13 @@
   padding: 8px 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  line-height: 0;
 }
 
 .myeditor-root .myeditor-image-controls-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
 }
@@ -180,47 +182,39 @@
   cursor: pointer;
 }
 
-.myeditor-root .myeditor-image-actions {
+/* .myeditor-root .myeditor-image-actions {
   margin-left: auto;
-}
+} */
 
 .myeditor-root .myeditor-edit-btn,
 .myeditor-root .myeditor-delete-btn {
-  padding: 4px 8px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  gap: 2px;
 }
 
-.myeditor-root .myeditor-edit-btn {
-  background: #3b82f6;
-  color: white;
-}
-
-.myeditor-root .myeditor-edit-btn:hover {
-  background: #2563eb;
-}
 
 .myeditor-root .myeditor-delete-btn {
-  background: #ef4444;
-  color: white;
+  background: red;
 }
 
-.myeditor-root .myeditor-delete-btn:hover {
-  background: #dc2626;
+.myeditor-root svg {
+  pointer-events: none;
+  
 }
+
 
 /* ==========================================
    RESIZE HANDLE
    ========================================== */
 .myeditor-root .myeditor-resize-handle {
   position: absolute;
-  bottom: -1px;
+  bottom: -50px;
   right: -1px;
-  width: 16px;
-  height: 16px;
+  width: 32px;
+  height: 32px;
   background: rgba(59, 130, 246, 0.9);
   color: white;
   border-radius: 0 0 8px 0;
@@ -302,7 +296,7 @@
   }
   
   .myeditor-root .myeditor-image-actions {
-    margin-left: 0;
+    /* margin-left: 0; */
     justify-content: center;
   }
 }
