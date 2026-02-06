@@ -44,7 +44,7 @@ export function createEditor(target: string | HTMLElement, config: EditorConfig 
   mount.className = "myeditor-root";
   host.appendChild(mount);
 
-  console.log('🏗️ Mount container created:', mount);
+  // console.log('🏗️ Mount container created:', mount);
 
   // Create initial doc
   const initialDocJSON = normalizeInitialJSON(config.initialJSON);
@@ -202,8 +202,8 @@ export function createEditor(target: string | HTMLElement, config: EditorConfig 
     },
   });
 
-  console.log('🎯 EditorView created:', view);
-  console.log('🔍 Mount element after view:', mount.innerHTML);
+  // console.log('🎯 EditorView created:', view);
+  // console.log('🔍 Mount element after view:', mount.innerHTML);
 
   // Mount toolbar after view exists
   if (config.toolbar) {
