@@ -37,7 +37,7 @@ export class ImageNodeView implements NodeView {
 
   dom: HTMLElement;
   img: HTMLImageElement;
-  cap: HTMLElement;
+  cap: HTMLElement | null;  // Allow null for no caption
   handle: HTMLElement;
   controls: HTMLElement;
 
@@ -98,12 +98,15 @@ export class ImageNodeView implements NodeView {
     handle.innerHTML = "↘";
     handle.setAttribute("title", "Drag to resize");
 
-    // Create caption
-    const caption_el = document.createElement("div");
-    caption_el.className = `myeditor-image-caption ${!caption ? 'myeditor-image-caption--empty' : ''}`;
-    caption_el.contentEditable = "plaintext-only";
-    caption_el.textContent = caption || "Click to add caption";
-    caption_el.setAttribute("data-placeholder", "Click to add caption");
+    // Create caption (only if caption exists) - Display only, editable via dialog
+    let caption_el: HTMLElement | null = null;
+    if (caption && caption.trim()) {
+      caption_el = document.createElement("div");
+      caption_el.className = "myeditor-image-caption";
+      caption_el.textContent = caption;
+      caption_el.setAttribute("title", "Caption (edit via image dialog)");
+      // No contentEditable - inline editing disabled, use dialog to edit
+    }
 
     // ==========================================
     // ASSEMBLE STRUCTURE
@@ -117,14 +120,21 @@ export class ImageNodeView implements NodeView {
     content.appendChild(overlay);
     
     container.appendChild(content);
-    container.appendChild(caption_el);
+    
+    // Only add caption if it exists
+    if (caption_el) {
+      container.appendChild(caption_el);
+    }
+    
+    // Update handle position based on caption presence
+    this.updateHandlePosition();
     
     wrapper.appendChild(container);
 
     // Set references for methods
     this.dom = wrapper;
     this.img = img;
-    this.cap = caption_el;
+    this.cap = caption_el;  // Can be null if no caption
     this.handle = handle;
     this.controls = controls;
 
@@ -198,11 +208,32 @@ export class ImageNodeView implements NodeView {
   }
 
   // ==========================================
+  // UPDATE HANDLE POSITIONING
+  // ==========================================
+  private updateHandlePosition() {
+    if (!this.handle) return;
+    
+    // Handle positioning depends on whether caption exists
+    const hasCaption = this.cap && this.node.attrs.caption && this.node.attrs.caption.trim();
+    
+    if (hasCaption) {
+      // Position handle below caption area
+      this.handle.style.bottom = '-50px';
+      this.handle.style.right = '-1px';
+    } else {
+      // Position handle inside image container
+      this.handle.style.bottom = '8px';
+      this.handle.style.right = '8px';
+    }
+  }
+
+  // ==========================================
   // BIND ALL EVENTS
   // ==========================================
   bindEvents() {
     this.bindResizeEvents();
-    this.bindCaptionEvents();
+    // Caption events disabled - captions are display-only
+    // this.bindCaptionEvents();
     this.bindControlEvents();
     this.bindSelectionEvents();
   }
@@ -275,39 +306,14 @@ export class ImageNodeView implements NodeView {
   }
 
   // ==========================================
-  // CAPTION EDITING
+  // CAPTION EDITING - DISABLED
+  // ==========================================
+  // CAPTION EDITING - INLINE DISABLED
   // ==========================================
   private bindCaptionEvents() {
-    this.cap.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.cap.focus();
-      
-      // Clear placeholder if empty
-      if (this.cap.classList.contains('myeditor-image-caption--empty')) {
-        this.cap.textContent = '';
-        this.cap.classList.remove('myeditor-image-caption--empty');
-      }
-    });
-
-    this.cap.addEventListener("blur", () => {
-      const newCaption = this.cap.textContent?.trim() || '';
-      
-      if (!newCaption) {
-        this.cap.textContent = 'Click to add caption';
-        this.cap.classList.add('myeditor-image-caption--empty');
-      } else {
-        this.cap.classList.remove('myeditor-image-caption--empty');
-      }
-      
-      this.updateAttrs({ caption: newCaption });
-    });
-
-    this.cap.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        this.cap.blur();
-      }
-    });
+    // Inline caption editing disabled to prevent issues
+    // Captions can be edited through the popup dialog instead
+    return;
   }
 
   // ==========================================
@@ -493,7 +499,7 @@ export class ImageNodeView implements NodeView {
         src: urlInput.value.trim() || this.node.attrs.src,
         width: parseInt(widthInput.value) || 320,
         align: alignSelect.value,
-        caption: captionInput.value.trim(),
+        caption: captionInput.value.trim(), // Caption can be edited via dialog
         alt: altInput.value.trim(),
         zoomable: zoomCheckbox.checked
       };
@@ -570,13 +576,27 @@ export class ImageNodeView implements NodeView {
     this.img.alt = alt || "";
     this.img.className = `myeditor-image ${zoomable ? 'myeditor-image--zoomable' : ''}`;
     
-    // Update caption
-    if (caption) {
+    // Handle caption update
+    const container = this.dom.querySelector('.myeditor-image-container') as HTMLElement;
+    
+    if (caption && caption.trim()) {
+      // Caption exists - create or update caption element
+      if (!this.cap) {
+        // Create new caption element - display only, editable via dialog
+        this.cap = document.createElement("div");
+        this.cap.className = "myeditor-image-caption";
+        this.cap.setAttribute("title", "Caption (edit via image dialog)");
+        container.appendChild(this.cap);
+        // Inline editing disabled - use dialog to edit caption
+      }
       this.cap.textContent = caption;
       this.cap.classList.remove('myeditor-image-caption--empty');
     } else {
-      this.cap.textContent = "Click to add caption";
-      this.cap.classList.add('myeditor-image-caption--empty');
+      // No caption - remove caption element if it exists
+      if (this.cap) {
+        this.cap.remove();
+        this.cap = null;
+      }
     }
     
     // Update controls
@@ -585,6 +605,9 @@ export class ImageNodeView implements NodeView {
     
     // Update alignment styles
     this.updateAlignmentStyles();
+    
+    // Update handle position based on caption presence
+    this.updateHandlePosition();
 
     return true;
   }

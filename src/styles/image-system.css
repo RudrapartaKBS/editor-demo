@@ -40,10 +40,39 @@
   clear: left;
 }
 
+.myeditor-root .myeditor-image-wrapper--left + *,
+.myeditor-root .myeditor-image-wrapper--left + p {
+  clear: left;
+}
+
 .myeditor-root .myeditor-image-wrapper--right {
   float: right;
   margin: 0 0 1rem 1rem;
   clear: right;
+}
+
+.myeditor-root .myeditor-image-wrapper--right + *,
+.myeditor-root .myeditor-image-wrapper--right + p {
+  clear: right;
+}
+
+/* Force clear for all paragraphs after aligned images */
+.myeditor-root p:has(+ .myeditor-image-wrapper--left),
+.myeditor-root p:has(+ .myeditor-image-wrapper--right) {
+  clear: both;
+}
+
+/* Ensure paragraphs after floated images always clear */
+.myeditor-root .ProseMirror p {
+  clear: both;
+}
+
+/* Clear floats after each image wrapper */
+.myeditor-root .myeditor-image-wrapper--left::after,
+.myeditor-root .myeditor-image-wrapper--right::after {
+  content: "";
+  display: table;
+  clear: both;
 }
 
 .myeditor-root .myeditor-image-wrapper--none {
@@ -222,8 +251,8 @@
    ========================================== */
 .myeditor-root .myeditor-resize-handle {
   position: absolute;
-  bottom: -50px;
-  right: -1px;
+  bottom: 8px;
+  right: 8px;
   width: 32px;
   height: 32px;
   background: rgba(59, 130, 246, 0.9);
@@ -241,6 +270,18 @@
   z-index: 10;
 }
 
+/* Handle positioning when caption is present */
+.myeditor-root .myeditor-image-container:has(.myeditor-image-caption) .myeditor-resize-handle {
+  bottom: -50px;
+  right: -1px;
+}
+
+/* Handle positioning when no caption */
+.myeditor-root .myeditor-image-container:not(:has(.myeditor-image-caption)) .myeditor-resize-handle {
+  bottom: 8px;
+  right: 8px;
+}
+
 .myeditor-root .myeditor-resize-handle:hover {
   background: rgba(59, 130, 246, 1);
   transform: scale(1.15);
@@ -248,7 +289,7 @@
 }
 
 /* ==========================================
-   IMAGE CAPTION
+   IMAGE CAPTION - READ ONLY
    ========================================== */
 .myeditor-root .myeditor-image-caption {
   padding: 12px;
@@ -257,8 +298,9 @@
   color: #64748b;
   font-size: 14px;
   text-align: center;
-  outline: none;
-  cursor: text;
+  cursor: default;
+  user-select: none;
+  font-style: italic;
   min-height: 20px;
   transition: all 0.2s ease;
 }
@@ -266,23 +308,6 @@
 .myeditor-root .myeditor-image-caption:hover {
   background: #f1f5f9;
   color: #475569;
-}
-
-.myeditor-root .myeditor-image-caption:focus {
-  background: #fff;
-  color: #1e293b;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-.myeditor-root .myeditor-image-caption--empty {
-  color: #94a3b8;
-  font-style: italic;
-}
-
-.myeditor-root .myeditor-image-caption--empty:focus {
-  color: #1e293b;
-  font-style: normal;
 }
 
 /* ==========================================

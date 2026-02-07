@@ -1,5 +1,6 @@
 import { keymap } from "prosemirror-keymap";
 import { toggleMark, setBlockType, baseKeymap, splitBlock, wrapIn } from "prosemirror-commands";
+import { undo, redo } from "prosemirror-history";
 import { splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list";
 import type { Plugin, EditorState, Transaction } from "prosemirror-state";
 import { TextSelection } from "prosemirror-state";
@@ -19,6 +20,68 @@ function smartEnterHandler(state: EditorState, dispatch?: (tr: Transaction) => v
   if (!empty) {
     // If there's a selection, use default splitBlock behavior
     return splitBlock(state, dispatch);
+  }
+  
+  // Check if we're directly after a figure node (which contains image)
+  const nodeAfter = $from.nodeAfter;
+  const nodeBefore = $from.nodeBefore;
+  
+  // Check if we're positioned after a figure containing an image
+  if (nodeBefore && nodeBefore.type.name === "figure") {
+    if (dispatch) {
+      const paragraph = state.schema.nodes.paragraph;
+      if (paragraph) {
+        const tr = state.tr;
+        const insertPos = $from.pos;
+        
+        // Insert empty paragraph after figure
+        tr.insert(insertPos, paragraph.create());
+        tr.setSelection(TextSelection.create(tr.doc, insertPos + 1));
+        
+        dispatch(tr);
+      }
+    }
+    return true;
+  }
+  
+  // Check if we're positioned before a figure containing an image  
+  if (nodeAfter && nodeAfter.type.name === "figure") {
+    if (dispatch) {
+      const paragraph = state.schema.nodes.paragraph;
+      if (paragraph) {
+        const tr = state.tr;
+        const insertPos = $from.pos;
+        
+        // Insert empty paragraph before figure
+        tr.insert(insertPos, paragraph.create());
+        tr.setSelection(TextSelection.create(tr.doc, insertPos + 1));
+        
+        dispatch(tr);
+      }
+    }
+    return true;
+  }
+  
+  // Also check if we're inside or at the end of a figure node
+  for (let i = $from.depth; i >= 0; i--) {
+    const node = $from.node(i);
+    if (node.type.name === "figure") {
+      // We're inside a figure, create paragraph after it
+      if (dispatch) {
+        const paragraph = state.schema.nodes.paragraph;
+        if (paragraph) {
+          const tr = state.tr;
+          const figurePos = $from.after(i);
+          
+          // Insert paragraph after figure
+          tr.insert(figurePos, paragraph.create());
+          tr.setSelection(TextSelection.create(tr.doc, figurePos + 1));
+          
+          dispatch(tr);
+        }
+      }
+      return true;
+    }
   }
   
   // Walk up the node hierarchy to find what block we're in
@@ -97,16 +160,47 @@ function smartEnterHandler(state: EditorState, dispatch?: (tr: Transaction) => v
       const headingStart = $from.start(i);
       const headingEnd = $from.end(i);
       
-      // Always exit heading when pressing Enter
       if (dispatch) {
         const paragraph = state.schema.nodes.paragraph;
         if (paragraph) {
           const tr = state.tr;
-          const insertPos = $from.after(i);
           
-          // Insert paragraph after heading
-          tr.insert(insertPos, paragraph.create());
-          tr.setSelection(TextSelection.create(tr.doc, insertPos + 1));
+          // Check if cursor is at the end of heading
+          if ($from.pos === headingEnd) {
+            // At end - create new paragraph after heading
+            const insertPos = $from.after(i);
+            tr.insert(insertPos, paragraph.create());
+            tr.setSelection(TextSelection.create(tr.doc, insertPos + 1));
+          } else {
+            // In middle - split heading content
+            const beforeText = state.doc.textBetween(headingStart, $from.pos);
+            const afterText = state.doc.textBetween($from.pos, headingEnd);
+            
+            if (afterText.trim()) {
+              // Split heading: keep first part as heading, make second part paragraph
+              const insertPos = $from.after(i);
+              const newParagraph = paragraph.create(null, afterText ? state.schema.text(afterText) : null);
+              
+              // Update heading to contain only before text
+              if (beforeText.trim()) {
+                tr.replaceWith(headingStart, headingEnd, state.schema.text(beforeText));
+              } else {
+                // If no text before cursor, convert heading to paragraph
+                tr.replaceWith($from.before(i), $from.after(i), newParagraph);
+                tr.setSelection(TextSelection.create(tr.doc, $from.before(i) + 1));
+                dispatch(tr);
+                return true;
+              }
+              
+              tr.insert(insertPos, newParagraph);
+              tr.setSelection(TextSelection.create(tr.doc, insertPos + 1));
+            } else {
+              // No text after cursor - just create new paragraph
+              const insertPos = $from.after(i);
+              tr.insert(insertPos, paragraph.create());
+              tr.setSelection(TextSelection.create(tr.doc, insertPos + 1));
+            }
+          }
           
           dispatch(tr);
         }
@@ -126,6 +220,11 @@ export function editorKeymap(): Plugin {
   return keymap({
     // Smart Enter handler for all blocks
     "Enter": smartEnterHandler,
+    
+    // History commands (undo/redo)
+    "Mod-z": undo,
+    "Mod-y": redo,
+    "Mod-Shift-z": redo,
     
     // List-specific shortcuts
     "Tab": sinkListItem(schema.nodes.list_item),
