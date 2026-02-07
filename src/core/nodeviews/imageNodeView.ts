@@ -321,6 +321,15 @@ export class ImageNodeView implements NodeView {
 
     // Align dropdown
     if (alignSelect) {
+      // Prevent event conflicts with dropdown
+      alignSelect.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+      
+      alignSelect.addEventListener("mousedown", (e) => {
+        e.stopPropagation();
+      });
+      
       alignSelect.addEventListener("change", (e) => {
         e.stopPropagation();
         this.updateAttrs({ align: alignSelect.value });

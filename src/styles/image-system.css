@@ -132,6 +132,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
   line-height: 0;
+  z-index: 5;
+  pointer-events: auto;
 }
 
 .myeditor-root .myeditor-image-controls-row {
@@ -168,6 +170,15 @@
   color: #374151;
   cursor: pointer;
   min-width: 80px;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.myeditor-root .myeditor-align-select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+  border-color: #3b82f6;
 }
 
 .myeditor-root .myeditor-zoom-label {
