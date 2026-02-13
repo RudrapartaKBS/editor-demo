@@ -1,17 +1,9 @@
 /**
  * ==========================================
- * MYEDITOR - CLEAN IMAGE SYSTEM CSS
+ * MYEDITOR - CLEAN IMAGE SYSTEM CSS (FIXED)
  * ==========================================
- * 
- * Structure:
- * .myeditor-image-wrapper (main container)
- *   .myeditor-image-container (content holder)
- *     .myeditor-image-content (image + overlay)
- *       .myeditor-image (actual image)
- *       .myeditor-image-overlay (controls overlay)
- *         .myeditor-image-controls (control panel)
- *         .myeditor-resize-handle (resize handle)
- *     .myeditor-image-caption (caption area)
+ * Fix: removed forced clear rules that were preventing text wrap
+ * around floated images (left/right).
  */
 
 /* ==========================================
@@ -22,62 +14,57 @@
   display: block;
   margin: 1rem 0;
   max-width: 100%;
-  clear: both;
   box-sizing: border-box;
 }
 
 /* ==========================================
    ALIGNMENT VARIANTS
    ========================================== */
+
+/* Center: block centered */
 .myeditor-root .myeditor-image-wrapper--center {
-  margin: 1rem auto;
+  float: none;
   display: block;
+  margin: 1rem auto;
 }
 
+/* None: default block */
+.myeditor-root .myeditor-image-wrapper--none {
+  float: none;
+  display: block;
+  margin: 1rem 0;
+}
+
+/* Left: float left and allow text wrap */
 .myeditor-root .myeditor-image-wrapper--left {
   float: left;
   margin: 0 1rem 1rem 0;
-  clear: left;
 }
 
-.myeditor-root .myeditor-image-wrapper--left + *,
-.myeditor-root .myeditor-image-wrapper--left + p {
-  clear: left;
-}
-
+/* Right: float right and allow text wrap */
 .myeditor-root .myeditor-image-wrapper--right {
   float: right;
   margin: 0 0 1rem 1rem;
-  clear: right;
 }
 
-.myeditor-root .myeditor-image-wrapper--right + *,
-.myeditor-root .myeditor-image-wrapper--right + p {
-  clear: right;
+/* IMPORTANT: allow wrapping (do NOT clear paragraphs globally) */
+.myeditor-root .ProseMirror p,
+.myeditor-root .ProseMirror li,
+.myeditor-root .ProseMirror blockquote,
+.myeditor-root .ProseMirror h1,
+.myeditor-root .ProseMirror h2,
+.myeditor-root .ProseMirror h3,
+.myeditor-root .ProseMirror h4,
+.myeditor-root .ProseMirror h5,
+.myeditor-root .ProseMirror h6 {
+  clear: none;
 }
 
-/* Force clear for all paragraphs after aligned images */
-.myeditor-root p:has(+ .myeditor-image-wrapper--left),
-.myeditor-root p:has(+ .myeditor-image-wrapper--right) {
-  clear: both;
-}
-
-/* Ensure paragraphs after floated images always clear */
-.myeditor-root .ProseMirror p {
-  clear: both;
-}
-
-/* Clear floats after each image wrapper */
-.myeditor-root .myeditor-image-wrapper--left::after,
-.myeditor-root .myeditor-image-wrapper--right::after {
+/* Optional: if some container uses clearfix logic, keep floats working */
+.myeditor-root .ProseMirror::after {
   content: "";
-  display: table;
-  clear: both;
-}
-
-.myeditor-root .myeditor-image-wrapper--none {
-  margin: 1rem 0;
   display: block;
+  clear: both;
 }
 
 /* ==========================================
@@ -131,10 +118,7 @@
    ========================================== */
 .myeditor-root .myeditor-image-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -160,7 +144,7 @@
   padding: 8px 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  line-height: 0;
+  line-height: 1;
   z-index: 5;
   pointer-events: auto;
 }
@@ -222,10 +206,6 @@
   cursor: pointer;
 }
 
-/* .myeditor-root .myeditor-image-actions {
-  margin-left: auto;
-} */
-
 .myeditor-root .myeditor-edit-btn,
 .myeditor-root .myeditor-delete-btn {
   display: inline-flex;
@@ -233,18 +213,24 @@
   justify-content: center;
   padding: 4px 6px;
   gap: 2px;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
 }
-
 
 .myeditor-root .myeditor-delete-btn {
   background: red;
+  color: #fff;
+}
+
+.myeditor-root .myeditor-edit-btn {
+  background: #3b82f6;
+  color: #fff;
 }
 
 .myeditor-root svg {
   pointer-events: none;
-  
 }
-
 
 /* ==========================================
    RESIZE HANDLE
@@ -270,22 +256,17 @@
   z-index: 10;
 }
 
-/* Handle positioning when caption is present */
-.myeditor-root .myeditor-image-container:has(.myeditor-image-caption) .myeditor-resize-handle {
-  bottom: -50px;
-  right: -1px;
-}
-
-/* Handle positioning when no caption */
-.myeditor-root .myeditor-image-container:not(:has(.myeditor-image-caption)) .myeditor-resize-handle {
-  bottom: 8px;
-  right: 8px;
-}
-
 .myeditor-root .myeditor-resize-handle:hover {
   background: rgba(59, 130, 246, 1);
   transform: scale(1.15);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* If caption exists and you still want handle lower, keep this.
+   If your browser doesn't support :has, it will simply ignore this. */
+.myeditor-root .myeditor-image-container:has(.myeditor-image-caption) .myeditor-resize-handle {
+  bottom: -50px;
+  right: -1px;
 }
 
 /* ==========================================
@@ -320,19 +301,14 @@
     margin: 1rem 0;
     max-width: 100%;
   }
-  
+
   .myeditor-root .myeditor-image-controls-row {
     flex-direction: column;
     gap: 8px;
     align-items: stretch;
   }
-  
+
   .myeditor-root .myeditor-image-control-group {
-    justify-content: center;
-  }
-  
-  .myeditor-root .myeditor-image-actions {
-    /* margin-left: 0; */
     justify-content: center;
   }
 }

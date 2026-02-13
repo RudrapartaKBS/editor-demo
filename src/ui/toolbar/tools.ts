@@ -21,6 +21,8 @@ import { increaseFontSize, decreaseFontSize } from "../../commands/fontSize";
 import { textColorTool } from "./tools/textColor";
 import { highlightTool } from "./tools/highlight";
 
+import { TextSelection } from "prosemirror-state";
+
 export const undoTool: Tool = {
   type: "button",
   id: "undo",
@@ -39,6 +41,55 @@ export const redoTool: Tool = {
   run: (view) => runRedo(view.state, view.dispatch, view),
 };
 
+// export const blockTypeTool: Tool = {
+//   type: "dropdown",
+//   id: "blockType",
+//   title: "Block type",
+//   options: [
+//     { label: "Paragraph", value: "p" },
+//     { label: "Heading 1", value: "h1" },
+//     { label: "Heading 2", value: "h2" },
+//     { label: "Heading 3", value: "h3" },
+//   ],
+//   getValue(view) {
+//     const { $from } = view.state.selection;
+//     const node = $from.parent;
+//     if (node.type.name === "heading") {
+//       const level = node.attrs.level;
+//       if (level === 1) return "h1";
+//       if (level === 2) return "h2";
+//       if (level === 3) return "h3";
+//     }
+//     return "p";
+//   },
+//   onSelect(view, value) {
+//     const { $from } = view.state.selection;
+//     const node = $from.parent;
+//     // Toggle logic: if already selected, revert to paragraph
+//     if (value === "h1") {
+//       if (node.type.name === "heading" && node.attrs.level === 1) {
+//         setParagraph(view.state, view.dispatch);
+//       } else {
+//         setHeading(1)(view.state, view.dispatch);
+//       }
+//     } else if (value === "h2") {
+//       if (node.type.name === "heading" && node.attrs.level === 2) {
+//         setParagraph(view.state, view.dispatch);
+//       } else {
+//         setHeading(2)(view.state, view.dispatch);
+//       }
+//     } else if (value === "h3") {
+//       if (node.type.name === "heading" && node.attrs.level === 3) {
+//         setParagraph(view.state, view.dispatch);
+//       } else {
+//         setHeading(3)(view.state, view.dispatch);
+//       }
+//     } else if (value === "p") {
+//       setParagraph(view.state, view.dispatch);
+//     }
+//   },
+// };
+
 export const blockTypeTool: Tool = {
   type: "dropdown",
   id: "blockType",
@@ -49,24 +100,73 @@ export const blockTypeTool: Tool = {
     { label: "Heading 2", value: "h2" },
     { label: "Heading 3", value: "h3" },
   ],
+
   getValue(view) {
-    const { $from } = view.state.selection;
-    const node = $from.parent;
-    if (node.type.name === "heading") {
-      const level = node.attrs.level;
+    const state = view.state;
+    const sel: any = state.selection;
+
+    // ✅ Range selection spanning multiple blocks = check for mixed content
+    if (sel instanceof TextSelection && !sel.empty) {
+      const types = new Set<string>();
+      state.doc.nodesBetween(sel.from, sel.to, (node) => {
+        if (node.isBlock) {
+          if (node.type.name === "heading") {
+            types.add(`h${node.attrs.level}`);
+          } else {
+            types.add("p");
+          }
+        }
+      });
+
+      // If mixed selection, return null to prevent dropdown from showing incorrect value
+      if (types.size !== 1) {
+        return null; // This will prevent setting select.value
+      }
+      
+      // Single block type in selection
+      return [...types][0];
+    }
+
+    // ✅ Use $head (cursor position) for single cursor
+    const parent = sel.$head.parent;
+
+    if (parent.type.name === "heading") {
+      const level = parent.attrs.level;
       if (level === 1) return "h1";
       if (level === 2) return "h2";
       if (level === 3) return "h3";
     }
+
     return "p";
   },
+
   onSelect(view, value) {
-    if (value === "p") setParagraph(view.state, view.dispatch);
-    if (value === "h1") setHeading(1)(view.state, view.dispatch);
-    if (value === "h2") setHeading(2)(view.state, view.dispatch);
-    if (value === "h3") setHeading(3)(view.state, view.dispatch);
+    const state = view.state;
+    const sel: any = state.selection;
+
+    // ✅ Use $head consistently for current block
+    const parent = sel.$head.parent;
+
+    // Paragraph
+    if (value === "p") {
+      setParagraph(state, view.dispatch);
+      return;
+    }
+
+    const level = value === "h1" ? 1 : value === "h2" ? 2 : value === "h3" ? 3 : null;
+    if (!level) return;
+
+    // Toggle logic: if already that heading, revert to paragraph
+    if (parent.type.name === "heading" && parent.attrs.level === level) {
+      setParagraph(state, view.dispatch);
+      return;
+    }
+
+    setHeading(level)(state, view.dispatch);
   },
 };
+
+
 
 export const boldTool: Tool = {
   type: "button",

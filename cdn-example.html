@@ -1,601 +1,498 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyEditor CDN Example</title>
-    
-    <!-- Auto-detect environment and load appropriate CSS -->
-    <script>
-        // Global variables
-        window.editorInstance = null;
-        window.realTimeJSONEnabled = false;
-        
-        // Smart path detection
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const isDistFolder = window.location.pathname.includes('/dist/');
-        
-        let cssPath, jsPath;
-        
-        if (isLocal) {
-            if (isDistFolder) {
-                // Running from dist folder
-                cssPath = './myeditor.css';
-                jsPath = './myeditor.cdn.js';
-            } else {
-                // Running from root (development)
-                cssPath = './dist/myeditor.css';
-                jsPath = './dist/myeditor.cdn.js';
-            }
-        } else {
-            // Live production
-            cssPath = 'https://editor.explorepedia.org/myeditor.css';
-            jsPath = 'https://editor.explorepedia.org/myeditor.cdn.js';
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyEditor CDN Example</title>
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    h1 {
+      color: #1f2937;
+      margin-bottom: 8px;
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+
+    .editor-wrapper {
+      margin: 25px 0;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 400px;
+    }
+
+    .myeditor-root {
+      min-height: 350px;
+    }
+
+    .myeditor-root .ProseMirror {
+      outline: none;
+      min-height: 350px;
+      padding: 20px;
+      cursor: text;
+    }
+
+    .myeditor-root .ProseMirror:focus {
+      outline: none;
+      border: none;
+    }
+
+    .controls {
+      margin: 20px 0;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    .usage-info {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 25px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 14px;
+      border: 1px solid #e9ecef;
+    }
+
+    .output {
+      margin-top: 20px;
+      padding: 20px;
+      background: #1f2937;
+      color: #f3f4f6;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 13px;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .success {
+      background: #10b981;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-weight: 500;
+    }
+  </style>
+
+  <script>
+    // Global variables
+    window.editorInstance = null;
+    window.realTimeJSONEnabled = false;
+
+    // Smart environment detection
+    function detectEnvironment() {
+      const isLocal =
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
+      const port = window.location.port;
+
+      if (isLocal && (port === '5173' || port === '5174' || port === '5175' || port === '3000')) {
+        return 'development'; // npm run dev
+      } else if (isLocal && (port === '8080' || port === '8081')) {
+        return 'local-production'; // npm run serve
+      } else {
+        return 'production'; // live server
+      }
+    }
+
+    function getAssetPaths() {
+      const env = detectEnvironment();
+
+      switch (env) {
+        case 'development':
+          return {
+            css: '/src/styles/myeditor.css',
+            js: '/src/index.ts',
+            label: '🔧 Development Mode (npm run dev)',
+            isDev: true
+          };
+
+        case 'local-production':
+          return {
+            css: './myeditor.css',
+            js: './myeditor.cdn.js',
+            label: '🧪 Local Production Test (npm run serve)',
+            isDev: false
+          };
+
+        default:
+          return {
+            css: 'https://editor.explorepedia.org/myeditor.css',
+            js: 'https://editor.explorepedia.org/myeditor.cdn.js',
+            label: '🚀 Live Production',
+            isDev: false
+          };
+      }
+    }
+
+    const paths = getAssetPaths();
+    console.log(paths.label);
+    console.log('📁 CSS:', paths.css);
+    console.log('📁 JS:', paths.js);
+
+    // Load CSS
+    const cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = paths.css;
+    cssLink.onload = () => console.log('✅ CSS loaded');
+    cssLink.onerror = () => console.error('❌ CSS failed to load');
+    document.head.appendChild(cssLink);
+
+    // Store paths for later use
+    window.myEditorPaths = paths;
+  </script>
+
+  <script>
+    // Load MyEditor JavaScript
+    if (window.myEditorPaths.isDev) {
+      // Dev mode - load ES module
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.innerHTML = `
+        try {
+          const module = await import('/src/index.ts');
+          window.MyEditor = {
+            createEditor: module.createEditor,
+            DEFAULT_TOOLS: module.DEFAULT_TOOLS
+          };
+          console.log('✅ MyEditor ES modules loaded');
+
+          setTimeout(() => {
+            initializeMyEditor();
+          }, 100);
+        } catch (error) {
+          console.error('❌ Failed to load ES module:', error);
+
+          const fallbackScript = document.createElement('script');
+          fallbackScript.src = '/dist/myeditor.cdn.js';
+          fallbackScript.onload = function() {
+            console.log('✅ Fallback script loaded');
+            setTimeout(() => {
+              initializeMyEditor();
+            }, 100);
+          };
+          fallbackScript.onerror = function() {
+            console.error('❌ Fallback script also failed');
+            const out = document.getElementById('output');
+            out.textContent = 'Failed to load MyEditor in development mode';
+            out.style.display = 'block';
+          };
+          document.head.appendChild(fallbackScript);
         }
-        
-        // Dynamically load CSS
-        const cssLink = document.createElement('link');
-        cssLink.rel = 'stylesheet';
-        cssLink.href = cssPath;
-        document.head.appendChild(cssLink);
-        
-        console.log('🔧 Environment detected:', isLocal ? 'LOCAL' : 'LIVE');
-        console.log('📁 Paths:', { css: cssPath, js: jsPath });
-    </script>
-    
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8fafc;
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
+      `;
+      document.head.appendChild(script);
+    } else {
+      // Production mode - use CDN script
+      const script = document.createElement('script');
+      script.src = window.myEditorPaths.js;
+
+      script.onload = function () {
+        console.log('✅ MyEditor script loaded');
+        setTimeout(() => {
+          initializeMyEditor();
+        }, 100);
+      };
+
+      script.onerror = function () {
+        console.error('❌ Failed to load MyEditor script');
+      };
+
+      document.head.appendChild(script);
+    }
+
+    // ✅ IMPORTANT: We DO NOT call mountToolbar here anymore.
+    // Because createEditor.ts now auto-mounts toolbar internally.
+
+    function initializeMyEditor() {
+      console.log('🚀 Initializing MyEditor...');
+
+      if (typeof window.MyEditor === 'undefined' || !window.MyEditor.createEditor) {
+        console.error('❌ MyEditor not found!');
+        const output = document.getElementById('output');
+        if (output) {
+          output.style.display = 'block';
+          output.textContent = '❌ MyEditor script not loaded. Check the console for errors.';
         }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        return;
+      }
+
+      if (window.editorInstance) {
+        console.log('⚠️ Already initialized');
+        return;
+      }
+
+      const container = document.getElementById('myeditor-container');
+      if (!container) {
+        console.error('❌ Container element not found!');
+        return;
+      }
+
+      try {
+        // ✅ Only createEditor
+        window.editorInstance = window.MyEditor.createEditor(container, {
+          placeholder: '✨ Click here and start typing...'
+        });
+
+        const statusEl = document.getElementById('status');
+        if (statusEl) statusEl.style.display = 'block';
+
+        console.log('✅ MyEditor initialized successfully!');
+      } catch (error) {
+        console.error('❌ Error initializing MyEditor:', error);
+        const output = document.getElementById('output');
+        if (output) {
+          output.style.display = 'block';
+          output.textContent = '❌ Error: ' + (error && error.message ? error.message : String(error));
         }
-        
-        h1 {
-            color: #1f2937;
-            margin-bottom: 8px;
-            font-size: 2rem;
-        }
-        
-        .subtitle {
-            color: #6b7280;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
-        
-        .editor-wrapper {
-            margin: 25px 0;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            overflow: hidden;
-            min-height: 400px;
-        }
-        
-        /* Make sure editor area is properly styled */
-        .myeditor-root {
-            min-height: 350px;
-        }
-        
-        .myeditor-root .ProseMirror {
-            outline: none;
-            min-height: 350px;
-            padding: 20px;
-            cursor: text;
-        }
-        
-        .myeditor-root .ProseMirror:focus {
-            outline: none;
-            border: none;
-        }
-        
-        .controls {
-            margin: 20px 0;
-            display: flex;
-            gap: 12px;
-        }
-        
-        button {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        
-        button:hover {
-            background: #2563eb;
-        }
-        
-        .usage-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 25px;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 14px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .output {
-            margin-top: 20px;
-            padding: 20px;
-            background: #1f2937;
-            color: #f3f4f6;
-            border-radius: 8px;
-            white-space: pre-wrap;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 13px;
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-        }
-        
-        .success {
-            background: #10b981;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-weight: 500;
-        }
-    </style>
-    
-    <!-- MyEditor Auto-Environment Detection -->
-    <script>
-        // Smart environment detection
-        function detectEnvironment() {
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const port = window.location.port;
-            
-            if (isLocal && (port === '5173' || port === '5174' || port === '5175' || port === '3000')) {
-                return 'development'; // npm run dev
-            } else if (isLocal && (port === '8080' || port === '8081')) {
-                return 'local-production'; // npm run serve
-            } else {
-                return 'production'; // live server
-            }
-        }
-        
-        function getAssetPaths() {
-            const env = detectEnvironment();
-            
-            switch(env) {
-                case 'development':
-                    return {
-                        css: '/src/styles.css',
-                        js: '/src/index.ts',
-                        label: '🔧 Development Mode (npm run dev)',
-                        isDev: true
-                    };
-                    
-                case 'local-production':
-                    return {
-                        css: './myeditor.css',
-                        js: './myeditor.cdn.js',
-                        label: '🧪 Local Production Test (npm run serve)',
-                        isDev: false
-                    };
-                    
-                default: // production
-                    return {
-                        css: 'https://editor.explorepedia.org/myeditor.css',
-                        js: 'https://editor.explorepedia.org/myeditor.cdn.js',
-                        label: '🚀 Live Production',
-                        isDev: false
-                    };
-            }
-        }
-        
-        const paths = getAssetPaths();
-        console.log(paths.label);
-        console.log('📁 CSS:', paths.css);
-        console.log('📁 JS:', paths.js);
-        
-        // Load CSS - Different for dev vs production
-        if (paths.isDev) {
-            // Development mode - Load CSS via link tag to avoid CORS issues
-            const cssLink = document.createElement('link');
-            cssLink.rel = 'stylesheet';
-            cssLink.href = '/src/styles/myeditor.css';  // Use actual CSS file path
-            cssLink.onload = () => console.log('✅ Dev CSS loaded');
-            cssLink.onerror = () => console.error('❌ Dev CSS failed to load');
-            document.head.appendChild(cssLink);
-        } else {
-            // Production mode - Load CSS normally
-            const cssLink = document.createElement('link');
-            cssLink.rel = 'stylesheet';
-            cssLink.href = paths.css;
-            cssLink.onload = () => console.log('✅ CSS loaded');
-            cssLink.onerror = () => console.error('❌ CSS failed to load');
-            document.head.appendChild(cssLink);
-        }
-        
-        // Store paths for later use
-        window.myEditorPaths = paths;
-    </script>
-    <script>
-        // Load MyEditor JavaScript
-        if (window.myEditorPaths.isDev) {
-            // Development mode - Use ES modules with proper Vite paths
-            const script = document.createElement('script');
-            script.type = 'module';
-            script.innerHTML = `
-                try {
-                    const module = await import('/src/index.ts');
-                    console.log('📦 Module loaded:', module);
-                    
-                    // Create MyEditor object from exports
-                    window.MyEditor = {
-                        createEditor: module.createEditor,
-                        mountToolbar: module.mountToolbar,
-                        DEFAULT_TOOLS: module.DEFAULT_TOOLS
-                    };
-                    
-                    console.log('✅ MyEditor ES modules loaded');
-                    console.log('🔍 Available functions:', Object.keys(window.MyEditor));
-                    
-                    // Initialize editor
-                    setTimeout(() => {
-                        initializeMyEditor();
-                    }, 100);
-                    
-                } catch (error) {
-                    console.error('❌ Failed to load ES module:', error);
-                    
-                    // Fallback: try loading built files even in dev mode
-                    const fallbackScript = document.createElement('script');
-                    fallbackScript.src = '/dist/myeditor.cdn.js';
-                    fallbackScript.onload = function() {
-                        console.log('✅ Fallback script loaded');
-                        setTimeout(() => {
-                            initializeMyEditor();
-                        }, 100);
-                    };
-                    fallbackScript.onerror = function() {
-                        console.error('❌ Fallback script also failed');
-                        document.getElementById('output').textContent = 'Failed to load MyEditor in development mode';
-                        document.getElementById('output').style.display = 'block';
-                    };
-                    document.head.appendChild(fallbackScript);
-                }
-            `;
-            document.head.appendChild(script);
-        } else {
-            // Production mode - use regular script
-            const script = document.createElement('script');
-            script.src = window.myEditorPaths.js;
-            script.onload = function() {
-                console.log('✅ MyEditor script loaded');
-                // Initialize editor after script loads
-                if (typeof window.MyEditor !== 'undefined') {
-                    setTimeout(() => {
-                        initializeMyEditor();
-                    }, 100);
-                } else {
-                    console.error('❌ MyEditor not found after script load');
-                }
-            };
-            
-            script.onerror = function() {
-                console.error('❌ Failed to load MyEditor script');
-            };
-            
-            document.head.appendChild(script);
-        }
-        
-        // Editor initialization function
-        function initializeMyEditor() {
-            console.log('🚀 Initializing MyEditor...');
-            
-            // Check if MyEditor is available
-            if (typeof window.MyEditor === 'undefined' || !window.MyEditor.createEditor) {
-                console.error('❌ MyEditor not found! Check if the script loaded correctly.');
-                const output = document.getElementById('output');
-                if (output) {
-                    output.style.display = 'block';
-                    output.textContent = '❌ MyEditor script not loaded. Check the console for errors.';
-                }
-                return;
-            }
-            
-            // Check if already initialized
-            if (window.editorInstance) {
-                console.log('⚠️ MyEditor already initialized, skipping...');
-                return;
-            }
-            
-            // Check if container exists
-            const container = document.getElementById('myeditor-container');
-            if (!container) {
-                console.error('❌ Container element not found!');
-                return;
-            }
-            
-            try {
-                // Create editor instance
-                window.editorInstance = window.MyEditor.createEditor(container, {
-                    placeholder: "✨ Click here and start typing... (Try the toolbar buttons!)"
-                });
-                
-                if (!window.editorInstance) {
-                    throw new Error('Failed to create editor instance');
-                }
-                
-                // Mount toolbar with correct parameter name
-                window.MyEditor.mountToolbar({
-                    target: container,
-                    view: window.editorInstance.view,
-                    tools: window.MyEditor.DEFAULT_TOOLS
-                });
-                
-                // Show success message
-                const statusEl = document.getElementById('status');
-                if (statusEl) {
-                    statusEl.style.display = 'block';
-                }
-                console.log('✅ MyEditor initialized successfully!');
-                
-            } catch (error) {
-                console.error('❌ Error initializing MyEditor:', error);
-                const output = document.getElementById('output');
-                if (output) {
-                    output.style.display = 'block';
-                    output.textContent = '❌ Error: ' + error.message;
-                }
-            }
-        }
-    </script>
+      }
+    }
+  </script>
 </head>
+
 <body>
-    <div class="container">
-        <h1>🚀 MyEditor CDN Example</h1>
-        <p class="subtitle">यह example दिखाता है कि आप अपने MyEditor को CDN की तरह कैसे use कर सकते हैं।</p>
-        
-        <div id="status" class="success" style="display: none;">
-            ✅ MyEditor successfully initialized!
-        </div>
-        
-        <!-- Editor Container -->
-        <div class="editor-wrapper">
-            <div id="myeditor-container"></div>
-        </div>
-        
-        <div class="controls">
-            <button onclick="getContent()">📄 Get Content</button>
-            <button onclick="setContent()">📝 Set Sample Content</button>
-            <button onclick="clearEditor()">🗑️ Clear Editor</button>
-            <button onclick="toggleOutput()">👁️ Toggle Output</button>
-            <button onclick="showJSON()">🔧 Show JSON Structure</button>
-            <button onclick="toggleRealTimeJSON()">⚡ Real-time JSON</button>
-        </div>
-        
-        <div class="usage-info">
-            <strong>💡 CDN Usage:</strong><br>
-            &lt;link rel="stylesheet" href="https://editor.explorepedia.org/dist/myeditor.css"&gt;<br>
-            &lt;script src="https://editor.explorepedia.org/dist/myeditor.cdn.js"&gt;&lt;/script&gt;<br><br>
-            <strong>🔧 Initialize:</strong><br>
-            const editor = MyEditor.createEditor(container);<br>
-            MyEditor.mountToolbar(editor.view, { tools: MyEditor.DEFAULT_TOOLS });
-        </div>
-        
-        <div id="output" class="output"></div>
-        
-        <!-- JSON Viewer -->
-        <div id="json-viewer" class="output" style="background: #0f172a; border: 2px solid #1e293b;">
-            <div style="background: #1e293b; padding: 10px; color: #f1f5f9; font-weight: bold; border-bottom: 1px solid #334155;">
-                📋 JSON Document Structure
-            </div>
-            <pre id="json-content" style="margin: 0; padding: 20px; color: #e2e8f0;">Click "Show JSON Structure" to see the document JSON</pre>
-        </div>
+  <div class="container">
+    <h1>🚀 MyEditor CDN Example</h1>
+    <p class="subtitle">
+      यह example दिखाता है कि आप अपने MyEditor को CDN की तरह कैसे use कर सकते हैं।
+    </p>
+
+    <div id="status" class="success" style="display: none;">
+      ✅ MyEditor successfully initialized!
     </div>
 
-    <script>
-        // Global editor instance
-        window.editorInstance = null;
-        window.realTimeJSONEnabled = false;
-        
-        // Wait for both DOM and MyEditor to be ready
-        // OLD FUNCTION REMOVED - using initializeMyEditor() instead
-        
-        // Function to get editor content
-        function getContent() {
-            if (!window.editorInstance) {
-                alert('❌ Editor not initialized');
-                return;
+    <!-- Editor Container -->
+    <div class="editor-wrapper">
+      <div id="myeditor-container"></div>
+    </div>
+
+    <div class="controls">
+      <button onclick="getContent()">📄 Get Content</button>
+      <button onclick="setContent()">📝 Set Sample Content</button>
+      <button onclick="clearEditor()">🗑️ Clear Editor</button>
+      <button onclick="toggleOutput()">👁️ Toggle Output</button>
+      <button onclick="showJSON()">🔧 Show JSON Structure</button>
+      <button onclick="toggleRealTimeJSON(event)">⚡ Real-time JSON</button>
+    </div>
+
+    <div class="usage-info">
+      <strong>💡 CDN Usage:</strong><br />
+      &lt;link rel="stylesheet" href="https://editor.explorepedia.org/myeditor.css"&gt;<br />
+      &lt;script src="https://editor.explorepedia.org/myeditor.cdn.js"&gt;&lt;/script&gt;<br /><br />
+      <strong>🔧 Initialize:</strong><br />
+      const editor = MyEditor.createEditor(container, { placeholder: "Start typing..." });<br />
+      <!-- toolbar auto-mounts inside createEditor -->
+    </div>
+
+    <div id="output" class="output"></div>
+
+    <!-- JSON Viewer -->
+    <div id="json-viewer" class="output" style="background: #0f172a; border: 2px solid #1e293b;">
+      <div style="background: #1e293b; padding: 10px; color: #f1f5f9; font-weight: bold; border-bottom: 1px solid #334155;">
+        📋 JSON Document Structure
+      </div>
+      <pre id="json-content" style="margin: 0; padding: 20px; color: #e2e8f0;">Click "Show JSON Structure" to see the document JSON</pre>
+    </div>
+  </div>
+
+  <script>
+    function getContent() {
+      if (!window.editorInstance) {
+        alert('❌ Editor not initialized');
+        return;
+      }
+      const content = window.editorInstance.getContent();
+      const output = document.getElementById('output');
+      output.style.display = 'block';
+      output.textContent = '📄 Current Editor Content:\n\n' + JSON.stringify(content, null, 2);
+    }
+
+    function setContent() {
+      if (!window.editorInstance) {
+        alert('❌ Editor not initialized');
+        return;
+      }
+
+      const sampleContent = {
+        schemaVersion: 1,
+        doc: {
+          type: "doc",
+          content: [
+            {
+              type: "heading",
+              attrs: { level: 1 },
+              content: [{ type: "text", text: "🎯 Sample Content Loaded!" }]
+            },
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "This content was set " },
+                { type: "text", marks: [{ type: "strong" }], text: "programmatically" },
+                { type: "text", text: " via the CDN API! " },
+                { type: "text", marks: [{ type: "em" }], text: "Pretty cool, right? 😎" }
+              ]
+            },
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "Current time: " },
+                { type: "text", marks: [{ type: "strong" }], text: new Date().toLocaleString() }
+              ]
             }
-            
-            try {
-                const content = window.editorInstance.getContent();
-                const output = document.getElementById('output');
-                output.style.display = 'block';
-                output.textContent = '📄 Current Editor Content:\n\n' + JSON.stringify(content, null, 2);
-            } catch (error) {
-                console.error('Error getting content:', error);
-                alert('❌ Error getting content: ' + error.message);
-            }
+          ]
         }
-        
-        // Function to set sample content
-        function setContent() {
-            if (!window.editorInstance) {
-                alert('❌ Editor not initialized');
-                return;
-            }
-            
-            try {
-                const sampleContent = {
-                    schemaVersion: 1,
-                    doc: {
-                        type: "doc",
-                        content: [
-                            {
-                                type: "heading",
-                                attrs: { level: 1 },
-                                content: [{ type: "text", text: "🎯 Sample Content Loaded!" }]
-                            },
-                            {
-                                type: "paragraph",
-                                content: [
-                                    { type: "text", text: "This content was set " },
-                                    { type: "text", marks: [{ type: "strong" }], text: "programmatically" },
-                                    { type: "text", text: " via the CDN API! " },
-                                    { type: "text", marks: [{ type: "em" }], text: "Pretty cool, right? 😎" }
-                                ]
-                            },
-                            {
-                                type: "paragraph",
-                                content: [
-                                    { type: "text", text: "Current time: " },
-                                    { type: "text", marks: [{ type: "strong" }], text: new Date().toLocaleString() }
-                                ]
-                            }
-                        ]
-                    }
-                };
-                
-                window.editorInstance.setContent(sampleContent);
-                
-                const output = document.getElementById('output');
-                output.style.display = 'block';
-                output.textContent = '✅ Sample content loaded successfully!\n\nContent was set programmatically using MyEditor CDN API.';
-                
-            } catch (error) {
-                console.error('Error setting content:', error);
-                alert('❌ Error setting content: ' + error.message);
-            }
+      };
+
+      window.editorInstance.setContent(sampleContent);
+
+      const output = document.getElementById('output');
+      output.style.display = 'block';
+      output.textContent = '✅ Sample content loaded successfully!';
+    }
+
+    function clearEditor() {
+      if (!window.editorInstance) {
+        alert('❌ Editor not initialized');
+        return;
+      }
+
+      const emptyContent = {
+        schemaVersion: 1,
+        doc: { type: "doc", content: [] }
+      };
+
+      window.editorInstance.setContent(emptyContent);
+
+      const output = document.getElementById('output');
+      output.style.display = 'block';
+      output.textContent = '🗑️ Editor cleared successfully!';
+    }
+
+    function toggleOutput() {
+      const output = document.getElementById('output');
+      if (output.style.display === 'none' || output.style.display === '') {
+        output.style.display = 'block';
+        if (!output.textContent.trim()) {
+          output.textContent = '👋 Output panel opened! Use the buttons above to see results here.';
         }
-        
-        // Function to clear editor
-        function clearEditor() {
-            if (!window.editorInstance) {
-                alert('❌ Editor not initialized');
-                return;
-            }
-            
-            try {
-                const emptyContent = {
-                    schemaVersion: 1,
-                    doc: {
-                        type: "doc",
-                        content: []
-                    }
-                };
-                
-                window.editorInstance.setContent(emptyContent);
-                
-                const output = document.getElementById('output');
-                output.style.display = 'block';
-                output.textContent = '🗑️ Editor cleared successfully!';
-                
-            } catch (error) {
-                console.error('Error clearing editor:', error);
-                alert('❌ Error clearing editor: ' + error.message);
-            }
+      } else {
+        output.style.display = 'none';
+      }
+    }
+
+    function showJSON() {
+      if (!window.editorInstance) {
+        alert('❌ Editor not initialized');
+        return;
+      }
+
+      const content = window.editorInstance.getContent();
+      const jsonViewer = document.getElementById('json-viewer');
+      const jsonContent = document.getElementById('json-content');
+
+      jsonViewer.style.display = 'block';
+      jsonContent.textContent = JSON.stringify(content, null, 2);
+      highlightJSON(jsonContent);
+    }
+
+    function toggleRealTimeJSON(ev) {
+      window.realTimeJSONEnabled = !window.realTimeJSONEnabled;
+
+      const button = ev && ev.target ? ev.target : null;
+
+      if (window.realTimeJSONEnabled) {
+        if (button) {
+          button.textContent = '⏹️ Stop Real-time';
+          button.style.background = '#ef4444';
         }
-        
-        // Function to toggle output panel
-        function toggleOutput() {
-            const output = document.getElementById('output');
-            if (output.style.display === 'none' || output.style.display === '') {
-                output.style.display = 'block';
-                if (!output.textContent.trim()) {
-                    output.textContent = '👋 Output panel opened! Use the buttons above to see results here.';
-                }
-            } else {
-                output.style.display = 'none';
+        showJSON();
+        setupRealTimeJSON();
+      } else {
+        if (button) {
+          button.textContent = '⚡ Real-time JSON';
+          button.style.background = '#3b82f6';
+        }
+        const jsonViewer = document.getElementById('json-viewer');
+        jsonViewer.style.display = 'none';
+      }
+    }
+
+    function setupRealTimeJSON() {
+      if (!window.editorInstance || !window.editorInstance.view) return;
+
+      const dom = window.editorInstance.view.dom;
+
+      // Avoid multiple listeners
+      if (dom.__myeditorRealtimeBound) return;
+      dom.__myeditorRealtimeBound = true;
+
+      dom.addEventListener('input', () => {
+        if (!window.realTimeJSONEnabled) return;
+        setTimeout(() => {
+          try {
+            const content = window.editorInstance.getContent();
+            const jsonContent = document.getElementById('json-content');
+            const viewer = document.getElementById('json-viewer');
+            if (jsonContent && viewer && viewer.style.display !== 'none') {
+              jsonContent.textContent = JSON.stringify(content, null, 2);
+              highlightJSON(jsonContent);
             }
-        }
-        
-        // Function to show current JSON structure
-        function showJSON() {
-            if (!window.editorInstance) {
-                alert('❌ Editor not initialized');
-                return;
-            }
-            
-            try {
-                const content = window.editorInstance.getContent();
-                const jsonViewer = document.getElementById('json-viewer');
-                const jsonContent = document.getElementById('json-content');
-                
-                jsonViewer.style.display = 'block';
-                jsonContent.textContent = JSON.stringify(content, null, 2);
-                
-                // Syntax highlighting for JSON
-                highlightJSON(jsonContent);
-                
-            } catch (error) {
-                console.error('Error getting JSON:', error);
-                alert('❌ Error getting JSON: ' + error.message);
-            }
-        }
-        
-        // Function to toggle real-time JSON updates
-        function toggleRealTimeJSON() {
-            window.realTimeJSONEnabled = !window.realTimeJSONEnabled;
-            
-            const button = event.target;
-            if (window.realTimeJSONEnabled) {
-                button.textContent = '⏹️ Stop Real-time';
-                button.style.background = '#ef4444';
-                showJSON();
-            } else {
-                button.textContent = '⚡ Real-time JSON';
-                button.style.background = '#3b82f6';
-                const jsonViewer = document.getElementById('json-viewer');
-                jsonViewer.style.display = 'none';
-            }
-        }
-        
-        // Setup real-time JSON updates
-        function setupRealTimeJSON() {
-            if (!window.editorInstance || !window.editorInstance.view) return;
-            
-            // Listen to document changes
-            window.editorInstance.view.dom.addEventListener('input', () => {
-                if (window.realTimeJSONEnabled) {
-                    setTimeout(() => {
-                        try {
-                            const content = window.editorInstance.getContent();
-                            const jsonContent = document.getElementById('json-content');
-                            if (jsonContent && document.getElementById('json-viewer').style.display !== 'none') {
-                                jsonContent.textContent = JSON.stringify(content, null, 2);
-                                highlightJSON(jsonContent);
-                            }
-                        } catch (error) {
-                            console.log('JSON update error:', error);
-                        }
-                    }, 100);
-                }
-            });
-        }
-        
-        // Simple JSON syntax highlighting
-        function highlightJSON(element) {
-            let html = element.textContent;
-            
-            // Color different JSON elements
-            html = html.replace(/"([^"]+)":/g, '<span style="color: #60a5fa;">"$1"</span>:');  // Keys
-            html = html.replace(/: "([^"]+)"/g, ': <span style="color: #34d399;">"$1"</span>');  // String values
-            html = html.replace(/: (\d+)/g, ': <span style="color: #fbbf24;">$1</span>');  // Numbers
-            html = html.replace(/: (true|false|null)/g, ': <span style="color: #f87171;">$1</span>');  // Booleans/null
-            html = html.replace(/(\[|\]|\{|\})/g, '<span style="color: #a78bfa;">$1</span>');  // Brackets
-            
-            element.innerHTML = html;
-        }
-    </script>
+          } catch (e) {}
+        }, 100);
+      });
+    }
+
+    function highlightJSON(element) {
+      let html = element.textContent;
+
+      html = html.replace(/"([^"]+)":/g, '<span style="color: #60a5fa;">"$1"</span>:');
+      html = html.replace(/: "([^"]+)"/g, ': <span style="color: #34d399;">"$1"</span>');
+      html = html.replace(/: (\d+)/g, ': <span style="color: #fbbf24;">$1</span>');
+      html = html.replace(/: (true|false|null)/g, ': <span style="color: #f87171;">$1</span>');
+      html = html.replace(/(\[|\]|\{|\})/g, '<span style="color: #a78bfa;">$1</span>');
+
+      element.innerHTML = html;
+    }
+  </script>
 </body>
 </html>

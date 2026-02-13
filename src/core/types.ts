@@ -19,7 +19,7 @@ export type Tool =
       id: string;
       title?: string;
       options: { label: string; value: string }[];
-      getValue?: (view: EditorView) => string;
+      getValue?: (view: EditorView) => string | null;
       onSelect: (view: EditorView, value: string) => void;
     }
   | {
